@@ -24,8 +24,13 @@ func Result(c *gin.Context, code int64, data interface{}, msg string) {
 		msg,
 	})
 }
-func SuccessWithMsg(c *gin.Context, msg string) {
-	Result(c, SUCCESS, msg, "")
+
+func SuccessWithObject(c *gin.Context, obj interface{}) {
+	Result(c, SUCCESS, obj, "")
+}
+
+func SuccessWithString(c *gin.Context, str string) {
+	Result(c, SUCCESS, str, "")
 }
 
 func FailWithError(c *gin.Context, err error) {

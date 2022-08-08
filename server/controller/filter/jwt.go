@@ -7,17 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func JWTAuth() gin.HandlerFunc {
+func JWTAuthHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("x-token")
-		if token == "" {
-			http2.FailWithEcode(c, ecode.NotLoginErr)
-			c.Abort()
-			return
-		}
-		j := common.NewJWT()
-		// parseToken 解析token包含的信息
-		claims, err := j.ParseToken(token)
+		claims, err := JWTAuth(token)
 		if err != nil {
 			http2.FailWithError(c, err)
 			c.Abort()
@@ -26,4 +19,12 @@ func JWTAuth() gin.HandlerFunc {
 		c.Set("claims", claims)
 		c.Next()
 	}
+}
+
+func JWTAuth(token string) (*common.TFPClaims, error) {
+	if token == "" {
+		return nil, ecode.NotLoginErr
+	}
+	j := common.NewJWT()
+	return j.ParseToken(token)
 }
