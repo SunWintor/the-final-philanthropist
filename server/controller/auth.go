@@ -11,21 +11,35 @@ func handleAuth(r *gin.Engine) {
 
 	auth := r.Group("/auth")
 	auth.POST("/register", register)
+	auth.POST("/login", login)
 }
 
-func register(c *gin.Context) {
-	var l model.RegisterReq
+func login(c *gin.Context) {
+	var l *model.LoginReq
 	if err := c.BindQuery(&l); err != nil {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	j := common.NewJWT()
-	cl := j.CreateClaims(l.Username + ":" + l.Password)
-	token, err := j.CreateToken(cl)
+	l.Password = common.EncryptionPassword(l.Password)
+	userInfo, err := svr.Login(c, l)
 	if err != nil {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	common.LoginUser.Put(l.Username, token)
-	gin_util.SuccessWithMsg(c, token)
+	gin_util.SuccessWithObject(c, userInfo)
+}
+
+func register(c *gin.Context) {
+	var r *model.RegisterReq
+	if err := c.ShouldBindJSON(&r); err != nil {
+		gin_util.FailWithError(c, err)
+		return
+	}
+	r.Password = common.EncryptionPassword(r.Password)
+	userInfo, err := svr.Register(c, r)
+	if err != nil {
+		gin_util.FailWithError(c, err)
+		return
+	}
+	gin_util.SuccessWithObject(c, userInfo)
 }
