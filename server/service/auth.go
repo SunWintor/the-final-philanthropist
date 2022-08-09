@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/SunWintor/tfp/server/common"
 	"github.com/SunWintor/tfp/server/controller/filter"
+	"github.com/SunWintor/tfp/server/core"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,7 @@ import (
 // 暂时先不管，等用户量上来了再搞。
 func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *model.UserInfo, err error) {
 	userInfo = new(model.UserInfo)
-	if _, ok := common.User.GetCopyByName(arg.Username); ok {
+	if _, ok := core.User.GetCopyByName(arg.Username); ok {
 		err = errors.WithStack(ecode.AccountAlreadyRegError)
 		return
 	}
@@ -23,11 +24,11 @@ func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *mo
 	if token, err = j.CreateToken(cl); err != nil {
 		return
 	}
-	userInfo.Id = common.GetIdentifier()
+	userInfo.ID = common.GetIdentifier()
 	userInfo.Username = arg.Username
 	userInfo.Password = arg.Password
 	userInfo.Token = token
-	common.User.Put(userInfo)
+	core.User.Put(userInfo)
 	return
 }
 
@@ -35,7 +36,7 @@ func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInf
 	var ok bool
 	var userInfo *model.UserInfo
 	res = new(model.UserInfo)
-	if userInfo, ok = common.User.GetCopyByName(arg.Username); !ok {
+	if userInfo, ok = core.User.GetCopyByName(arg.Username); !ok {
 		err = errors.WithStack(ecode.AccountNotExistsError)
 		return
 	}
