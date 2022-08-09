@@ -1,4 +1,4 @@
-package common
+package core
 
 import (
 	"github.com/SunWintor/tfp/server/model"
@@ -25,10 +25,10 @@ func (u *UserCache) Put(userInfo *model.UserInfo) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 	u.nameMap[userInfo.Username] = userInfo
-	u.idMap[userInfo.Id] = userInfo
+	u.idMap[userInfo.ID] = userInfo
 }
 
-// GetCopyByName 获取的是副本，要改用put。
+// GetCopyByName 获取的是副本，如果想要修改获取到的数据，需要使用put。
 func (u *UserCache) GetCopyByName(username string) (userInfo *model.UserInfo, ok bool) {
 	u.mu.RLock()
 	defer u.mu.RUnlock()
@@ -38,7 +38,7 @@ func (u *UserCache) GetCopyByName(username string) (userInfo *model.UserInfo, ok
 	return
 }
 
-// GetCopyById 获取的是副本，要改用put
+// GetCopyById 获取的是副本，如果想要修改获取到的数据，需要使用put。
 func (u *UserCache) GetCopyById(id int64) (userInfo *model.UserInfo, ok bool) {
 	u.mu.RLock()
 	defer u.mu.RUnlock()
