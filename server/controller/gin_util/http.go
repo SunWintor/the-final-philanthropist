@@ -25,6 +25,14 @@ func Result(c *gin.Context, code int64, data interface{}, msg string) {
 	})
 }
 
+func AutoResult(c *gin.Context, obj interface{}, err error) {
+	if err != nil {
+		FailWithError(c, err)
+		return
+	}
+	SuccessWithObject(c, obj)
+}
+
 func SuccessWithObject(c *gin.Context, obj interface{}) {
 	Result(c, SUCCESS, obj, "")
 }

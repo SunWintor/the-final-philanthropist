@@ -24,7 +24,7 @@ func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *mo
 	if token, err = j.CreateToken(cl); err != nil {
 		return
 	}
-	userInfo.ID = common.GetIdentifier()
+	userInfo.ID = common.GetNextUserId()
 	userInfo.Username = arg.Username
 	userInfo.Password = arg.Password
 	userInfo.Token = token

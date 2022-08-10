@@ -22,11 +22,7 @@ func login(c *gin.Context) {
 	}
 	l.Password = common.EncryptionPassword(l.Password)
 	userInfo, err := svr.Login(c, l)
-	if err != nil {
-		gin_util.FailWithError(c, err)
-		return
-	}
-	gin_util.SuccessWithObject(c, userInfo)
+	gin_util.AutoResult(c, userInfo, err)
 }
 
 func register(c *gin.Context) {
@@ -37,9 +33,5 @@ func register(c *gin.Context) {
 	}
 	r.Password = common.EncryptionPassword(r.Password)
 	userInfo, err := svr.Register(c, r)
-	if err != nil {
-		gin_util.FailWithError(c, err)
-		return
-	}
-	gin_util.SuccessWithObject(c, userInfo)
+	gin_util.AutoResult(c, userInfo, err)
 }
