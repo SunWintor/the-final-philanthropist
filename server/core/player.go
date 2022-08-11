@@ -1,6 +1,11 @@
 package core
 
+import "github.com/SunWintor/tfp/server/core/game/hero"
+
 type Player struct {
-	UserId  int64
-	IsReady bool // todo 2022-08-11要把这个搞定。
+	PlayerID int64
+	UserID   int64
+	RoomID   string
+	IsReady  bool
+	Hero     *hero.Hero
 }

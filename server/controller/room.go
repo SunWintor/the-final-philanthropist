@@ -22,6 +22,6 @@ func joinRandomRoom(c *gin.Context) {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	token, err := svr.JoinRandomRoom(c, j)
-	gin_util.AutoResult(c, token, err)
+	roomId, err := svr.JoinRandomRoom(c, j)
+	gin_util.AutoResult(c, roomId, err)
 }

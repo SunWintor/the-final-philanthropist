@@ -1,5 +1,5 @@
 package model
 
 type JoinRandomRoomReq struct {
-	UID int64 `json:"uid" form:"uid"`
+	UserID int64 `json:"user_id" form:"user_id"`
 }
