@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/SunWintor/tfp/server/common"
 	"github.com/golang/glog"
 	"sync"
 	"time"
@@ -11,7 +10,7 @@ type RoomPool struct {
 	roomReadyMap  map[string]*Room
 	roomGamingMap map[string]*Room
 	roomEndedMap  map[string]*Room
-	mu            sync.RWMutex // todo 现在共享一把锁纯粹因为懒，房间操作不是频繁操作，所以目前呆胶布
+	mu            sync.RWMutex
 }
 
 var GameRoomPool *RoomPool
@@ -23,10 +22,10 @@ func init() {
 	GameRoomPool.roomEndedMap = make(map[string]*Room, 64)
 }
 
-func (r *RoomPool) GetNotFullRoom() (res *Room) {
-	res = r.getRandomFreeRoom()
+func GetJoinableRoom() (res *Room) {
+	res = GameRoomPool.getRandomReadyRoom()
 	if res == nil {
-		res = r.createRoom()
+		res = GameRoomPool.createRoom()
 	}
 	return
 }
@@ -63,11 +62,11 @@ func (r *RoomPool) gamingToEnded(room *Room) (ok bool) {
 	return
 }
 
-func (r *RoomPool) getRandomFreeRoom() *Room {
+func (r *RoomPool) getRandomReadyRoom() *Room {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, v := range r.roomReadyMap {
-		if len(v.PlayerMap) == RoomMaxPlayerCount {
+		if v.IsFull() {
 			continue
 		}
 		return v
@@ -78,9 +77,7 @@ func (r *RoomPool) getRandomFreeRoom() *Room {
 func (r *RoomPool) createRoom() *Room {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	room := new(Room)
-	room.RoomID = common.GetRandomRoomId()
-	room.Status = GameNotStart
-	room.PlayerMap = make(map[int64]*Player, RoomMaxPlayerCount)
+	room := generateRoom()
+	r.roomReadyMap[room.RoomID] = room
 	return room
 }
