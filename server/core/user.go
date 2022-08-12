@@ -1,8 +1,9 @@
 package core
 
 import (
-	"github.com/SunWintor/tfp/server/model"
 	"sync"
+
+	"github.com/SunWintor/tfp/server/model"
 )
 
 type UserCache struct {
