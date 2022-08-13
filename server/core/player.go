@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/SunWintor/tfp/server/common"
 	"github.com/SunWintor/tfp/server/core/game/hero"
+	"github.com/SunWintor/tfp/server/model"
 )
 
 type Player struct {
@@ -17,5 +18,14 @@ func GeneratePlayer(userId int64) *Player {
 	return &Player{
 		PlayerId: common.GetRandomPlayerId(),
 		UserId:   userId,
+	}
+}
+
+func (p *Player) ToReply() *model.Player {
+	return &model.Player{
+		PlayerId: p.PlayerId,
+		UserId:   p.UserId,
+		IsReady:  p.IsReady,
+		Hero:     (*p.Hero).ToReply(),
 	}
 }

@@ -17,7 +17,7 @@ type RoomPool struct {
 var gameRoomPool *RoomPool
 var once sync.Once
 
-func GameRoomPool() *RoomPool {
+func pool() *RoomPool {
 	if gameRoomPool == nil {
 		once.Do(func() {
 			roomPoolInit()
@@ -34,13 +34,14 @@ func roomPoolInit() {
 }
 
 func GetJoinableRoom() (res *Room) {
-	res = GameRoomPool().getRandomReadyRoom()
+	res = pool().getRandomReadyRoom()
 	if res == nil {
-		res = GameRoomPool().createEmptyRoomToReady()
+		res = pool().createEmptyRoomToReady()
 	}
 	return
 }
-func (r *RoomPool) GetById(roomId string) (room *Room) {
+func GetRoom(roomId string) (room *Room) {
+	r := pool()
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	var ok bool

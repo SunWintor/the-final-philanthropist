@@ -50,5 +50,5 @@ func FailWithError(c *gin.Context, err error) {
 }
 
 func FailWithEcode(c *gin.Context, e *ecode.Ecode) {
-	Result(c, e.Code, map[string]interface{}{}, e.Error())
+	Result(c, e.Code, map[string]interface{}{}, e.Msg)
 }

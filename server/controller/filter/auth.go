@@ -8,7 +8,7 @@ import (
 func EqualUltraViresHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//token := c.Request.Header.Get("x-token")
-		//uId := c.Request.Header.Get("uId")
+		//uId := c.Request.Header.Get("uid")
 		c.Next()
 	}
 }

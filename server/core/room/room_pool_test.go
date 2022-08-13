@@ -15,10 +15,10 @@ func TestGameRoomPool(t *testing.T) {
 }
 
 func TestGetJoinableRoom(t *testing.T) {
-	emptyRoomId := "emptyRoomId"
+	emptyRoomId := "emptyRoomid"
 	empty := &Room{RoomId: emptyRoomId, playerMap: map[int64]*core.Player{}}
 
-	fullRoomId := "fullRoomId"
+	fullRoomId := "fullRoomid"
 	full := &Room{RoomId: fullRoomId, playerMap: map[int64]*core.Player{}}
 	for i := int64(0); i < RoomMaxPlayerCount; i++ {
 		full.playerMap[i] = &core.Player{PlayerId: i}

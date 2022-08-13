@@ -7,7 +7,6 @@ import (
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 )
 
 // Register fixme 当前版本，如果并发去注册同一个账号，会出问题。
@@ -15,7 +14,7 @@ import (
 func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *model.UserInfo, err error) {
 	userInfo = new(model.UserInfo)
 	if _, ok := core.User.GetCopyByName(arg.Username); ok {
-		err = errors.WithStack(ecode.AccountAlreadyRegError)
+		err = ecode.AccountAlreadyRegError
 		return
 	}
 	j := common.NewJWT()
@@ -37,11 +36,11 @@ func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInf
 	var userInfo *model.UserInfo
 	res = new(model.UserInfo)
 	if userInfo, ok = core.User.GetCopyByName(arg.Username); !ok {
-		err = errors.WithStack(ecode.AccountNotExistsError)
+		err = ecode.AccountNotExistsError
 		return
 	}
 	if arg.Password != userInfo.Password {
-		err = errors.WithStack(ecode.PasswordError)
+		err = ecode.PasswordError
 		return
 	}
 	_, err = filter.JWTAuth(userInfo.Token)
