@@ -46,24 +46,24 @@ func (j *JWT) ParseToken(tokenString string) (*TFPClaims, error) {
 		return nil, convertJwtError(err)
 	}
 	if token == nil {
-		return nil, ecode.TokenInvalid
+		return nil, ecode.TokenInvalId
 	}
-	if claims, ok := token.Claims.(*TFPClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*TFPClaims); ok && token.ValId {
 		return claims, nil
 	}
-	return nil, ecode.TokenInvalid
+	return nil, ecode.TokenInvalId
 }
 
 func convertJwtError(err error) error {
-	if ve, ok := err.(*jwt.ValidationError); ok {
-		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+	if ve, ok := err.(*jwt.ValIdationError); ok {
+		if ve.Errors&jwt.ValIdationErrorMalformed != 0 {
 			return ecode.TokenMalformed
-		} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
+		} else if ve.Errors&jwt.ValIdationErrorExpired != 0 {
 			return ecode.TokenExpired
-		} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-			return ecode.TokenNotValidYet
+		} else if ve.Errors&jwt.ValIdationErrorNotValIdYet != 0 {
+			return ecode.TokenNotValIdYet
 		} else {
-			return ecode.TokenInvalid
+			return ecode.TokenInvalId
 		}
 	}
 	return nil

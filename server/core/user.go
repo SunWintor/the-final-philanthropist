@@ -8,7 +8,7 @@ import (
 
 type UserCache struct {
 	nameMap map[string]*model.UserInfo
-	idMap   map[int64]*model.UserInfo
+	IdMap   map[int64]*model.UserInfo
 	mu      sync.RWMutex
 }
 
@@ -19,14 +19,14 @@ var User *UserCache
 func init() {
 	User = new(UserCache)
 	User.nameMap = make(map[string]*model.UserInfo, 64)
-	User.idMap = make(map[int64]*model.UserInfo, 64)
+	User.IdMap = make(map[int64]*model.UserInfo, 64)
 }
 
 func (u *UserCache) Put(userInfo *model.UserInfo) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 	u.nameMap[userInfo.Username] = userInfo
-	u.idMap[userInfo.ID] = userInfo
+	u.IdMap[userInfo.Id] = userInfo
 }
 
 // GetCopyByName 获取的是副本，如果想要修改获取到的数据，需要使用put。
@@ -40,11 +40,11 @@ func (u *UserCache) GetCopyByName(username string) (userInfo *model.UserInfo, ok
 }
 
 // GetCopyById 获取的是副本，如果想要修改获取到的数据，需要使用put。
-func (u *UserCache) GetCopyById(id int64) (userInfo *model.UserInfo, ok bool) {
+func (u *UserCache) GetCopyById(Id int64) (userInfo *model.UserInfo, ok bool) {
 	u.mu.RLock()
 	defer u.mu.RUnlock()
 	var tmp *model.UserInfo
-	userInfo, ok = u.idMap[id]
+	userInfo, ok = u.IdMap[Id]
 	userInfo = tmp.DeepCopy()
 	return
 }
