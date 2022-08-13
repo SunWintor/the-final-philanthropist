@@ -4,6 +4,7 @@ import (
 	"github.com/SunWintor/tfp/server/common"
 	"github.com/SunWintor/tfp/server/core"
 	"github.com/SunWintor/tfp/server/ecode"
+	"github.com/SunWintor/tfp/server/model"
 	"github.com/pkg/errors"
 	"sync"
 )
@@ -49,6 +50,18 @@ func GetCurrentUserRoomId(userId int64) string {
 	return roomId.(string)
 }
 
+func (r *Room) Ready(userId int64, ready bool) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	var player *core.Player
+	var ok bool
+	if player, ok = r.playerMap[userId]; !ok {
+		return ecode.PlayerNotInRoomError
+	}
+	player.IsReady = ready
+	return nil
+}
+
 func (r *Room) IsFull() bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -74,7 +87,7 @@ func (r *Room) Exit(player *core.Player) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if player.RoomId != r.RoomId {
-		return errors.WithMessagef(ecode.PlayerNotInRoomError, "player:%v, room:%v", player, r)
+		return errors.WithMessagef(ecode.PlayerRoomWrongError, "player:%v, room:%v", player, r)
 	}
 	delete(r.playerMap, player.UserId)
 	player.RoomId = ""
@@ -82,11 +95,20 @@ func (r *Room) Exit(player *core.Player) error {
 	return nil
 }
 
-func (r *Room) GameStart() {
+func (r *Room) GameStart() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if len(r.playerMap) < 2 {
+		return ecode.InsufficientPlayerError
+	}
+	for _, player := range r.playerMap {
+		if !player.IsReady {
+			return ecode.PlayerNotReadyError
+		}
+	}
 	r.Status = Gaming
 	gameRoomPool.readyToGaming(r)
+	return nil
 }
 
 func (r *Room) GameEnd() {
@@ -101,4 +123,17 @@ func (r *Room) GameEnd() {
 		return true
 	})
 	gameRoomPool.gamingToEnded(r)
+}
+
+func (r *Room) ToReply() *model.RoomInfoReply {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	res := &model.RoomInfoReply{
+		RoomId: r.RoomId,
+		Status: r.Status,
+	}
+	for _, player := range r.playerMap {
+		res.PlayerList = append(res.PlayerList, player.ToReply())
+	}
+	return res
 }

@@ -1,7 +1,7 @@
 package model
 
 type UserInfo struct {
-	Id       int64  `json:"Id"`
+	Id       int64  `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"-"` // 密码是md5+盐后的
 	Token    string `json:"-"`
@@ -20,6 +20,6 @@ func (u *UserInfo) DeepCopy() *UserInfo {
 	return res
 }
 
-type UIdReq struct {
-	UId int64 `json:"uId" form:"uId"`
+type UserIdReq struct {
+	UserId int64 `json:"user_id" form:"user_id"`
 }
