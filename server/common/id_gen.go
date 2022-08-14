@@ -9,6 +9,7 @@ import (
 var userId int64
 var roomId int64
 var playerId int64
+var gameId int64
 
 func GetNextUserId() int64 {
 	atomic.AddInt64(&userId, 1)
@@ -21,6 +22,10 @@ func GetRandomRoomId() string {
 
 func GetRandomPlayerId() string {
 	return randomId("P", &playerId)
+}
+
+func GetRandomGameId() string {
+	return randomId("G", &gameId)
 }
 
 func randomId(prefix string, id *int64) string {

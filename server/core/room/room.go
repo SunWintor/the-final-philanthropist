@@ -2,7 +2,7 @@ package room
 
 import (
 	"github.com/SunWintor/tfp/server/common"
-	"github.com/SunWintor/tfp/server/core"
+	"github.com/SunWintor/tfp/server/core/game"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/pkg/errors"
@@ -10,14 +10,15 @@ import (
 )
 
 type Room struct {
-	RoomId    string
-	Status    int64                  // 1：游戏未开始，2：游戏已开始，3：游戏已结束
-	playerMap map[int64]*core.Player // list删除一个玩家简直恶心死了！我宁可每次遍历都是乱的qwq。不导出是为了外面不要随便修改，可能导致panic
-	mu        sync.RWMutex           // 为什么一个锁？问就是懒233
+	RoomId  string
+	Status  int64 // 1：游戏未开始，2：游戏已开始，3：游戏已结束
+	Game    *game.Game
+	userMap map[int64]*RoomUser // list删除一个玩家简直恶心死了！我宁可每次遍历都是乱的qwq。不导出是为了外面不要随便修改，可能导致panic
+	mu      sync.RWMutex        // 为什么一个锁？问就是懒233
 }
 
 const (
-	RoomMaxPlayerCount = 8
+	RoomUserLimit = 8
 )
 
 const (
@@ -38,7 +39,7 @@ func generateReadyRoom() *Room {
 	room := new(Room)
 	room.RoomId = common.GetRandomRoomId()
 	room.Status = GameReady
-	room.playerMap = make(map[int64]*core.Player, RoomMaxPlayerCount)
+	room.userMap = make(map[int64]*RoomUser, RoomUserLimit)
 	return room
 }
 
@@ -53,62 +54,82 @@ func GetCurrentUserRoomId(userId int64) string {
 func (r *Room) Ready(userId int64, ready bool) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	var player *core.Player
+	var roomUser *RoomUser
 	var ok bool
-	if player, ok = r.playerMap[userId]; !ok {
+	if roomUser, ok = r.userMap[userId]; !ok {
 		return ecode.PlayerNotInRoomError
 	}
-	player.IsReady = ready
+	roomUser.IsReady = ready
 	return nil
 }
 
 func (r *Room) IsFull() bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	return len(r.playerMap) == RoomMaxPlayerCount
+	return len(r.userMap) == RoomUserLimit
 }
 
-func (r *Room) Join(player *core.Player) error {
+func (r *Room) Join(roomUser *RoomUser) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.IsFull() {
-		return errors.WithMessagef(ecode.RoomIsFullError, "player:%v, room:%v", player, r)
+		return errors.WithMessagef(ecode.RoomIsFullError, "roomUser:%v, room:%v", roomUser, r)
 	}
-	if player.RoomId != "" {
-		return errors.WithMessagef(ecode.AlreadyInRoomError, "player:%v, room:%v", player, r)
+	if roomUser.RoomId != "" {
+		return errors.WithMessagef(ecode.AlreadyInRoomError, "roomUser:%v, room:%v", roomUser, r)
 	}
-	r.playerMap[player.UserId] = player
-	player.RoomId = r.RoomId
-	userCurrentRoomIdMap.Store(player.UserId, r.RoomId)
+	r.userMap[roomUser.UserId] = roomUser
+	roomUser.RoomId = r.RoomId
+	userCurrentRoomIdMap.Store(roomUser.UserId, r.RoomId)
 	return nil
 }
 
-func (r *Room) Exit(player *core.Player) error {
+func (r *Room) Exit(userId int64) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if player.RoomId != r.RoomId {
-		return errors.WithMessagef(ecode.PlayerRoomWrongError, "player:%v, room:%v", player, r)
+	roomUser, ok := r.userMap[userId]
+	if !ok {
+		return ecode.PlayerNotInRoomError
 	}
-	delete(r.playerMap, player.UserId)
-	player.RoomId = ""
-	userCurrentRoomIdMap.Delete(player.UserId)
+	delete(r.userMap, roomUser.UserId)
+	roomUser.RoomId = ""
+	userCurrentRoomIdMap.Delete(roomUser.UserId)
 	return nil
 }
 
 func (r *Room) GameStart() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if len(r.playerMap) < 2 {
+	if len(r.userMap) < 2 {
 		return ecode.InsufficientPlayerError
 	}
-	for _, player := range r.playerMap {
-		if !player.IsReady {
+	for _, roomUser := range r.userMap {
+		if !roomUser.IsReady {
 			return ecode.PlayerNotReadyError
 		}
 	}
+	r.gameInit()
 	r.Status = Gaming
 	gameRoomPool.readyToGaming(r)
 	return nil
+}
+
+func (r *Room) gameInit() {
+	r.Game = &game.Game{
+		GameId: common.GetRandomGameId(),
+		RoomId: r.RoomId,
+	}
+	playerMap := make(map[string]*game.Player, len(r.userMap)*2)
+	for _, value := range r.userMap {
+		player := value.ToPlayer()
+		playerMap[player.PlayerId] = player
+	}
+	r.Game.RoundInit(playerMap)
+	endChan := r.Game.Start()
+	go func() {
+		<-endChan
+		r.GameEnd()
+	}()
 }
 
 func (r *Room) GameEnd() {
@@ -132,8 +153,8 @@ func (r *Room) ToReply() *model.RoomInfoReply {
 		RoomId: r.RoomId,
 		Status: r.Status,
 	}
-	for _, player := range r.playerMap {
-		res.PlayerList = append(res.PlayerList, player.ToReply())
+	for _, roomUser := range r.userMap {
+		res.RoomUserList = append(res.RoomUserList, roomUser.ToReply())
 	}
 	return res
 }

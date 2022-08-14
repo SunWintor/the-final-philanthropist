@@ -10,10 +10,13 @@ import (
 func handleRoom(r *gin.Engine) {
 	room := r.Group("/room") //, filter.JWTAuthHandler())
 
-	room.POST("/join/random", joinRandomRoom, filter.EqualUltraViresHandler()) // 随机进入一个房间
-	room.GET("/info", roomInfo)                                                // 获取某个房间的相关信息，包括房间里有谁，自己在不在这个房间里啥的
-	room.POST("/ready", ready, filter.EqualUltraViresHandler())                // 在房间内准备开始游戏，所有人都准备了游戏将会开始
-	room.POST("/ready/cancel", readyCancel, filter.EqualUltraViresHandler())   // 取消准备
+	room.POST("/join/random", joinRandomRoom, filter.EqualUltraViresHandler())
+	room.POST("/exit", exitRoom, filter.EqualUltraViresHandler())
+
+	room.POST("/ready", ready, filter.EqualUltraViresHandler())
+	room.POST("/ready/cancel", readyCancel, filter.EqualUltraViresHandler())
+
+	room.GET("/info", roomInfo)
 }
 
 func ready(c *gin.Context) {
@@ -44,6 +47,16 @@ func joinRandomRoom(c *gin.Context) {
 	}
 	roomId, err := svr.JoinRandomRoom(c, u)
 	gin_util.AutoResult(c, roomId, err)
+}
+
+func exitRoom(c *gin.Context) {
+	var u *model.UserIdReq
+	if err := c.ShouldBindJSON(&u); err != nil {
+		gin_util.FailWithError(c, err)
+		return
+	}
+	err := svr.ExitRoom(c, u)
+	gin_util.AutoResult(c, nil, err)
 }
 
 func roomInfo(c *gin.Context) {

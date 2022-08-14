@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/SunWintor/tfp/server/common"
 	"github.com/SunWintor/tfp/server/controller/filter"
-	"github.com/SunWintor/tfp/server/core"
+	"github.com/SunWintor/tfp/server/core/user"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,7 @@ import (
 // 暂时先不管，等用户量上来了再搞。
 func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *model.UserInfo, err error) {
 	userInfo = new(model.UserInfo)
-	if _, ok := core.User.GetCopyByName(arg.Username); ok {
+	if _, ok := user.GetCopyByName(arg.Username); ok {
 		err = ecode.AccountAlreadyRegError
 		return
 	}
@@ -27,7 +27,7 @@ func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *mo
 	userInfo.Username = arg.Username
 	userInfo.Password = arg.Password
 	userInfo.Token = token
-	core.User.Put(userInfo)
+	user.Put(userInfo)
 	return
 }
 
@@ -35,7 +35,7 @@ func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInf
 	var ok bool
 	var userInfo *model.UserInfo
 	res = new(model.UserInfo)
-	if userInfo, ok = core.User.GetCopyByName(arg.Username); !ok {
+	if userInfo, ok = user.GetCopyByName(arg.Username); !ok {
 		err = ecode.AccountNotExistsError
 		return
 	}
