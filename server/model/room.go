@@ -9,17 +9,16 @@ type RoomInfoReq struct {
 }
 
 type RoomInfoReply struct {
-	GameId     string    `json:"game_id"`
-	RoomId     string    `json:"room_id"`
-	Status     int64     `json:"status"`
-	PlayerList []*Player `json:"player_list"`
+	GameId       string      `json:"game_id"`
+	RoomId       string      `json:"room_id"`
+	Status       int64       `json:"status"`
+	RoomUserList []*RoomUser `json:"room_user_list"`
 }
 
-type Player struct {
+type RoomUser struct {
 	PlayerId string `json:"player_id"`
 	UserId   int64  `json:"user_id"`
 	IsReady  bool   `json:"is_ready"`
-	Hero     *Hero  `json:"hero"`
 }
 
 type Hero struct {

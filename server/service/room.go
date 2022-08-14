@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/SunWintor/tfp/server/core"
 	"github.com/SunWintor/tfp/server/core/room"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
@@ -55,8 +54,19 @@ func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *mod
 	}
 	r := room.GetJoinableRoom()
 	res.RoomId = r.RoomId
-	player := core.GeneratePlayer(arg.UserId)
-	err = r.Join(player)
+	roomUser := room.GenerateRoomUser(arg.UserId)
+	err = r.Join(roomUser)
+	return
+}
+
+func (s *Service) ExitRoom(c *gin.Context, arg *model.UserIdReq) (err error) {
+	roomId := room.GetCurrentUserRoomId(arg.UserId)
+	if roomId == "" {
+		err = ecode.PlayerNotInRoomError
+		return
+	}
+	r := room.GetRoom(roomId)
+	err = r.Exit(arg.UserId)
 	return
 }
 
