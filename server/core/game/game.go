@@ -1,6 +1,8 @@
 package game
 
-import "github.com/SunWintor/tfp/server/core/game/process"
+import (
+	"github.com/SunWintor/tfp/server/core/game/process"
+)
 
 type Game struct {
 	GameId  string
@@ -17,10 +19,11 @@ const (
 
 func (g *Game) RoundInit(playerMap map[string]*Player) {
 	g.Process = &process.Process{
-		Round: &process.Round{
-			Stage: process.StageMap[process.GameStartStage],
+		ProcessContext: &process.ProcessContext{
+			Round:     0,
+			PlayerMap: playerMap,
+			EndGame:   make(<-chan struct{}),
 		},
-		PlayerMap: playerMap,
 	}
 }
 
@@ -32,7 +35,7 @@ func (g *Game) Start() <-chan struct{} {
 }
 
 func (g *Game) start() {
-	go g.Process.Start(g.End)
+	go g.Process.Start()
 	<-g.End
 	g.Status = Ended
 }
