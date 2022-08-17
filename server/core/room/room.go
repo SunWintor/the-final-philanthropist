@@ -43,12 +43,22 @@ func generateReadyRoom() *Room {
 	return room
 }
 
-func GetCurrentUserRoomId(userId int64) string {
+func GetUserRoomId(userId int64) string {
 	roomId, _ := userCurrentRoomIdMap.Load(userId)
 	if roomId == nil {
 		return ""
 	}
 	return roomId.(string)
+}
+
+func GetUserRoom(userId int64) (r *Room, err error) {
+	roomId := GetUserRoomId(userId)
+	if roomId != "" {
+		err = ecode.PlayerNotInRoomError
+		return
+	}
+	r = GetRoom(roomId)
+	return
 }
 
 func (r *Room) Ready(userId int64, ready bool) error {

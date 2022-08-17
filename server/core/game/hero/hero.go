@@ -4,7 +4,16 @@ import "github.com/SunWintor/tfp/server/model"
 
 type Hero interface {
 	Init()
+
+	GetMoneyLimit() int64
+	GetCurrentMoney() int64
+	GetName() string
+	GetSkillInfo() string
+
 	ToReply() *model.Hero
+
+	IsBankrupt() bool
+	Punishment(int64)
 }
 
 type heroInfo struct {
@@ -21,4 +30,28 @@ func (f *heroInfo) ToReply() *model.Hero {
 		Name:         f.Name,
 		SkillInfo:    f.SkillInfo,
 	}
+}
+
+func (f *heroInfo) IsBankrupt() bool {
+	return f.CurrentMoney <= 0
+}
+
+func (f *heroInfo) Punishment(money int64) {
+	f.CurrentMoney -= money
+}
+
+func (f *heroInfo) GetMoneyLimit() int64 {
+	return f.MoneyLimit
+}
+
+func (f *heroInfo) GetCurrentMoney() int64 {
+	return f.CurrentMoney
+}
+
+func (f *heroInfo) GetName() string {
+	return f.Name
+}
+
+func (f *heroInfo) GetSkillInfo() string {
+	return f.SkillInfo
 }

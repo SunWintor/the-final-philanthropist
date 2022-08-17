@@ -65,6 +65,6 @@ func roomInfo(c *gin.Context) {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	roomInfo, err := svr.RoomInfo(c, r)
-	gin_util.AutoResult(c, roomInfo, err)
+	info, err := svr.RoomInfo(c, r)
+	gin_util.AutoResult(c, info, err)
 }
