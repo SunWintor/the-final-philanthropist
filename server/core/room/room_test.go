@@ -21,8 +21,8 @@ func TestGetCurrentUserRoomId(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetCurrentUserRoomId(tt.args.userId); got != tt.want {
-				t.Errorf("GetCurrentUserRoomId() = %v, want %v", got, tt.want)
+			if got := GetUserRoomId(tt.args.userId); got != tt.want {
+				t.Errorf("GetUserRoomId() = %v, want %v", got, tt.want)
 			}
 		})
 	}

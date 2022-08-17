@@ -33,12 +33,10 @@ func changeUserReadyStatus(userId int64, ready bool) (r *room.Room, err error) {
 }
 
 func getUserStatusReadyRoom(userId int64) (r *room.Room, err error) {
-	roomId := room.GetCurrentUserRoomId(userId)
-	if roomId != "" {
-		err = ecode.PlayerNotInRoomError
+	r, err = room.GetUserRoom(userId)
+	if err != nil {
 		return
 	}
-	r = room.GetRoom(roomId)
 	if r.Status != room.GameReady {
 		err = ecode.RoomNotReadyError
 		return
@@ -47,7 +45,7 @@ func getUserStatusReadyRoom(userId int64) (r *room.Room, err error) {
 }
 
 func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *model.JoinRandomRoomReply, err error) {
-	roomId := room.GetCurrentUserRoomId(arg.UserId)
+	roomId := room.GetUserRoomId(arg.UserId)
 	if roomId != "" {
 		res.RoomId = roomId
 		return
@@ -60,12 +58,11 @@ func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *mod
 }
 
 func (s *Service) ExitRoom(c *gin.Context, arg *model.UserIdReq) (err error) {
-	roomId := room.GetCurrentUserRoomId(arg.UserId)
-	if roomId == "" {
-		err = ecode.PlayerNotInRoomError
+	var r *room.Room
+	r, err = room.GetUserRoom(arg.UserId)
+	if err != nil {
 		return
 	}
-	r := room.GetRoom(roomId)
 	err = r.Exit(arg.UserId)
 	return
 }

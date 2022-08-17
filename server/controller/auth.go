@@ -8,7 +8,6 @@ import (
 )
 
 func handleAuth(r *gin.Engine) {
-
 	auth := r.Group("/auth")
 	auth.POST("/register", register)
 	auth.POST("/login", login)

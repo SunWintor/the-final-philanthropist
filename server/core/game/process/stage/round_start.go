@@ -17,5 +17,6 @@ func (g *roundStart) templateInit() {
 
 func (g *roundStart) Run(ctx *process.ProcessContext) <-chan time.Time {
 	ctx.Round++
+	ctx.InitCurrentRound()
 	return g.baseStage.Run(ctx)
 }
