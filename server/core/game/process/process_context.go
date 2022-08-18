@@ -48,7 +48,6 @@ func (p *ProcessContext) SyncPunishment() {
 
 func (p *ProcessContext) RoundToHistory() {
 	p.RoundHistory = append(p.RoundHistory, p.CurrentRoundInfo)
-	p.CurrentRoundInfo = nil
 }
 
 func (p *ProcessContext) JudgementGameEnd() {

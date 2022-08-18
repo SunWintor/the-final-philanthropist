@@ -51,7 +51,7 @@ func GetUserRoomId(userId int64) string {
 	return roomId.(string)
 }
 
-func GetUserRoom(userId int64) (r *Room, err error) {
+func UserRoom(userId int64) (r *Room, err error) {
 	roomId := GetUserRoomId(userId)
 	if roomId != "" {
 		err = ecode.PlayerNotInRoomError

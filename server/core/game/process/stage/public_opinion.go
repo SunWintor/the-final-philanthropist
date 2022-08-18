@@ -10,9 +10,9 @@ type publicOpinion struct {
 }
 
 func (g *publicOpinion) templateInit() {
-	g.Stage = PublicOpinionStage
-	g.StageName = "舆论惩罚阶段"
-	g.DurationSecond = 5 * time.Second
+	g.stage = PublicOpinionStage
+	g.stageName = "舆论惩罚阶段"
+	g.duration = 5 * time.Second
 }
 
 func (g *publicOpinion) Run(ctx *process.ProcessContext) <-chan time.Time {

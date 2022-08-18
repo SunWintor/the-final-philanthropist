@@ -1,6 +1,10 @@
 package process
 
-import "math"
+import (
+	"github.com/SunWintor/tfp/server/ecode"
+	"github.com/SunWintor/tfp/server/model"
+	"math"
+)
 
 type RoundInfo struct {
 	RoundNo         int64
@@ -15,6 +19,16 @@ type DonatedInfo struct {
 	DonatedMoney    int64
 	PunishmentMoney int64
 	Bankrupt        bool
+}
+
+func (g *RoundInfo) Donated(playerId string, donated int64) error {
+	for _, donatedInfo := range g.DonatedInfoList {
+		if donatedInfo.PlayerId == playerId {
+			donatedInfo.DonatedMoney = donated
+			return nil
+		}
+	}
+	return ecode.PlayerNotExistsError
 }
 
 func (r *RoundInfo) MinDonated() int64 {
@@ -56,5 +70,26 @@ func (r *RoundInfo) PunishmentPlayer(playerIdList []string) {
 		if _, ok := playerIdMap[donatedInfo.PlayerId]; ok {
 			donatedInfo.PunishmentMoney = r.PublicOpinion
 		}
+	}
+}
+
+func (r *RoundInfo) ToReply() *model.RoundHistory {
+	var roundPlayerInfo []*model.RoundDonatedInfo
+	for _, donatedInfo := range r.DonatedInfoList {
+		roundPlayerInfo = append(roundPlayerInfo, donatedInfo.ToReply())
+	}
+	return &model.RoundHistory{
+		RoundNo:              r.RoundNo,
+		RoundDonatedInfoList: roundPlayerInfo,
+	}
+}
+
+func (d *DonatedInfo) ToReply() *model.RoundDonatedInfo {
+	return &model.RoundDonatedInfo{
+		PlayerId:        d.PlayerId,
+		CurrentMoney:    d.CurrentMoney,
+		DonatedMoney:    d.DonatedMoney,
+		PunishmentMoney: d.PunishmentMoney,
+		Bankrupt:        d.Bankrupt,
 	}
 }

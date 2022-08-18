@@ -35,6 +35,6 @@ func (p *RoomUser) ToPlayer() *game.Player {
 	return &game.Player{
 		PlayerId: common.GetRandomPlayerId(),
 		UserId:   p.UserId,
-		UserName: userName,
+		Username: userName,
 	}
 }

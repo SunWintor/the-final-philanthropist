@@ -23,15 +23,6 @@ type heroInfo struct {
 	SkillInfo    string
 }
 
-func (f *heroInfo) ToReply() *model.Hero {
-	return &model.Hero{
-		MoneyLimit:   f.MoneyLimit,
-		CurrentMoney: f.CurrentMoney,
-		Name:         f.Name,
-		SkillInfo:    f.SkillInfo,
-	}
-}
-
 func (f *heroInfo) IsBankrupt() bool {
 	return f.CurrentMoney <= 0
 }
@@ -54,4 +45,13 @@ func (f *heroInfo) GetName() string {
 
 func (f *heroInfo) GetSkillInfo() string {
 	return f.SkillInfo
+}
+
+func (f *heroInfo) ToReply() *model.Hero {
+	return &model.Hero{
+		MoneyLimit:   f.MoneyLimit,
+		CurrentMoney: f.CurrentMoney,
+		Name:         f.Name,
+		SkillInfo:    f.SkillInfo,
+	}
 }

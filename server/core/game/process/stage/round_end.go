@@ -10,9 +10,9 @@ type roundEnd struct {
 }
 
 func (g *roundEnd) templateInit() {
-	g.Stage = RoundEndStage
-	g.StageName = "回合结束阶段"
-	g.DurationSecond = 3 * time.Second
+	g.stage = RoundEndStage
+	g.stageName = "回合结束阶段"
+	g.duration = 3 * time.Second
 }
 
 func (g *roundEnd) Run(ctx *process.ProcessContext) <-chan time.Time {

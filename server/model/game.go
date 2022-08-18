@@ -1,5 +1,12 @@
 package model
 
+type DonatedReq struct {
+	UserId   int64  `json:"user_id" form:"user_id"`
+	PlayerId string `json:"player_id" form:"player_id"`
+	Donated  int64  `json:"donated" form:"donated"`
+	RoundNo  int64  `json:"round_no" form:"round_no"`
+}
+
 type GameInfoReq struct {
 	UserId int64 `json:"user_id" form:"user_id"`
 }
@@ -12,41 +19,39 @@ type GameInfoReply struct {
 }
 
 type GameInfo struct {
-	RoundInfo      *RoundInfo      `json:"round_info"`
-	PlayerGameInfo *PlayerGameInfo `json:"player_game_info"`
-}
-
-type PlayerGameInfo struct {
-	PlayerId         int64           `json:"player_id"`
-	Username         string          `json:"username"`
-	CurrentMoney     int64           `json:"current_money"`
-	HeroInfo         *HeroInfo       `json:"hero_info"`
+	RoundInfo        *RoundInfo      `json:"round_info"`
+	PlayerGameInfo   *PlayerGameInfo `json:"player_game_info"`
 	RoundHistoryList []*RoundHistory `json:"round_history_list"`
 }
 
-type RoundHistory struct {
-	RoundNo         int64 `json:"round_no"`
-	CurrentMoney    int64 `json:"current_money"`
-	DonatedMoney    int64 `json:"donated_money"`
-	PunishmentMoney int64 `json:"punishment_money"`
-	Bankrupt        bool  `json:"bankrupt"`
+type PlayerGameInfo struct {
+	PlayerId string `json:"player_id"`
+	Username string `json:"username"`
+	HeroInfo *Hero  `json:"hero_info"`
 }
 
-type HeroInfo struct {
-	MoneyLimit int64  `json:"money_limit"`
-	Name       string `json:"name"`
-	SkillInfo  string `json:"skill_info"`
+type RoundHistory struct {
+	RoundNo              int64               `json:"round_no"`
+	RoundDonatedInfoList []*RoundDonatedInfo `json:"round_donated_info_list"`
+}
+
+type RoundDonatedInfo struct {
+	PlayerId        string `json:"player_id"`
+	CurrentMoney    int64  `json:"current_money"`
+	DonatedMoney    int64  `json:"donated_money"`
+	PunishmentMoney int64  `json:"punishment_money"`
+	Bankrupt        bool   `json:"bankrupt"`
 }
 
 type RoundInfo struct {
-	Round         int64  `json:"round"`
+	RoundNo       int64  `json:"round_no"`
 	PublicOpinion int64  `json:"public_opinion"`
 	Stage         *Stage `json:"stage"`
 }
 
 type Stage struct {
-	Stage     int64  `json:"stage"`
-	StartTime int64  `json:"start_time"`
-	Name      string `json:"name"`
-	Duration  int64  `json:"duration"`
+	Stage          int64  `json:"stage"`
+	StartTime      int64  `json:"start_time"`
+	Name           string `json:"name"`
+	DurationSecond int64  `json:"duration"`
 }
