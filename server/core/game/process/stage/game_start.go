@@ -11,9 +11,9 @@ type gameStart struct {
 }
 
 func (g *gameStart) templateInit() {
-	g.Stage = GameStartStage
-	g.StageName = "游戏开始阶段"
-	g.DurationSecond = 3 * time.Second
+	g.stage = GameStartStage
+	g.stageName = "游戏开始阶段"
+	g.duration = 3 * time.Second
 }
 
 func (g *gameStart) Run(ctx *process.ProcessContext) <-chan time.Time {

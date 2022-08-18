@@ -2,6 +2,8 @@ package game
 
 import (
 	"github.com/SunWintor/tfp/server/core/game/process"
+	"github.com/SunWintor/tfp/server/core/game/process/stage"
+	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 )
 
@@ -17,15 +19,6 @@ const (
 	Gaming = 1
 	Ended  = 2
 )
-
-func (g *Game) ToReply() *model.GameInfoReply {
-	return &model.GameInfoReply{
-		GameId:   g.GameId,
-		RoomId:   g.RoomId,
-		Status:   g.Status,
-		GameInfo: g.Process.ToGameInfoReply(),
-	}
-}
 
 func (g *Game) RoundInit(playerMap map[string]*Player) {
 	g.Process = &process.Process{
@@ -48,4 +41,20 @@ func (g *Game) start() {
 	go g.Process.Start()
 	<-g.End
 	g.Status = Ended
+}
+
+func (g *Game) ToReply(userId int64) *model.GameInfoReply {
+	return &model.GameInfoReply{
+		GameId:   g.GameId,
+		RoomId:   g.RoomId,
+		Status:   g.Status,
+		GameInfo: g.Process.ToGameInfoReply(userId),
+	}
+}
+
+func (g *Game) Donated(playerId string, donated int64) error {
+	if g.Process.Stage.GetStage() != stage.DonatedStage {
+		return ecode.StageNotDonatedError
+	}
+	return g.Process.ProcessContext.CurrentRoundInfo.Donated(playerId, donated)
 }

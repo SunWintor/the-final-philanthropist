@@ -9,7 +9,7 @@ type donated struct {
 }
 
 func (g *donated) templateInit() {
-	g.Stage = DonatedStage
-	g.StageName = "捐赠阶段"
-	g.DurationSecond = 20 * time.Second
+	g.stage = DonatedStage
+	g.stageName = "捐赠阶段"
+	g.duration = 20 * time.Second
 }

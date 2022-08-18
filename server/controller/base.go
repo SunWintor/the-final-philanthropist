@@ -16,6 +16,7 @@ func Handle(r *gin.Engine) *gin.Engine {
 	handleHome(r)
 	handleAuth(r)
 	handleRoom(r)
+	handleGame(r)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")

@@ -33,7 +33,7 @@ func changeUserReadyStatus(userId int64, ready bool) (r *room.Room, err error) {
 }
 
 func getUserStatusReadyRoom(userId int64) (r *room.Room, err error) {
-	r, err = room.GetUserRoom(userId)
+	r, err = room.UserRoom(userId)
 	if err != nil {
 		return
 	}
@@ -59,7 +59,7 @@ func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *mod
 
 func (s *Service) ExitRoom(c *gin.Context, arg *model.UserIdReq) (err error) {
 	var r *room.Room
-	r, err = room.GetUserRoom(arg.UserId)
+	r, err = room.UserRoom(arg.UserId)
 	if err != nil {
 		return
 	}

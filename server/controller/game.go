@@ -15,11 +15,21 @@ func handleGame(r *gin.Engine) {
 }
 
 func gameInfo(c *gin.Context) {
-	var r *model.GameInfoReq
-	if err := c.BindQuery(&r); err != nil {
+	var g *model.GameInfoReq
+	if err := c.BindQuery(&g); err != nil {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	info, err := svr.GameInfo(c, r)
+	info, err := svr.GameInfo(c, g)
 	gin_util.AutoResult(c, info, err)
+}
+
+func donated(c *gin.Context) {
+	var d *model.DonatedReq
+	if err := c.ShouldBindJSON(&d); err != nil {
+		gin_util.FailWithError(c, err)
+		return
+	}
+	err := svr.Donated(c, d)
+	gin_util.AutoResult(c, nil, err)
 }
