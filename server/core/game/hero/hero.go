@@ -13,7 +13,7 @@ type Hero interface {
 	ToReply() *model.Hero
 
 	IsBankrupt() bool
-	Punishment(int64)
+	DecMoney(int64)
 }
 
 type heroInfo struct {
@@ -27,7 +27,7 @@ func (f *heroInfo) IsBankrupt() bool {
 	return f.CurrentMoney <= 0
 }
 
-func (f *heroInfo) Punishment(money int64) {
+func (f *heroInfo) DecMoney(money int64) {
 	f.CurrentMoney -= money
 }
 

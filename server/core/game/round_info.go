@@ -1,4 +1,4 @@
-package process
+package game
 
 import (
 	"github.com/SunWintor/tfp/server/ecode"
@@ -23,10 +23,13 @@ type DonatedInfo struct {
 
 func (g *RoundInfo) Donated(playerId string, donated int64) error {
 	for _, donatedInfo := range g.DonatedInfoList {
-		if donatedInfo.PlayerId == playerId {
-			donatedInfo.DonatedMoney = donated
-			return nil
+		if donatedInfo.PlayerId != playerId {
+			continue
 		}
+		if donatedInfo.CurrentMoney > donated {
+			donatedInfo.DonatedMoney = donatedInfo.CurrentMoney
+		}
+		return nil
 	}
 	return ecode.PlayerNotExistsError
 }
@@ -51,7 +54,7 @@ func (r *RoundInfo) MaxDonated() int64 {
 	return maxDonated
 }
 
-func (r *RoundInfo) DonatedPlayer(donated int64) []string {
+func (r *RoundInfo) PlayerByDonated(donated int64) []string {
 	res := make([]string, 0)
 	for _, donatedInfo := range r.DonatedInfoList {
 		if donatedInfo.DonatedMoney == donated {
@@ -61,7 +64,7 @@ func (r *RoundInfo) DonatedPlayer(donated int64) []string {
 	return res
 }
 
-func (r *RoundInfo) PunishmentPlayer(playerIdList []string) {
+func (r *RoundInfo) PunishmentGen(playerIdList []string) {
 	playerIdMap := make(map[string]struct{}, len(playerIdList))
 	for _, playerId := range playerIdList {
 		playerIdMap[playerId] = struct{}{}

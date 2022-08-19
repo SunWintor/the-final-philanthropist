@@ -8,7 +8,7 @@ import (
 
 func TestGameRoomPool(t *testing.T) {
 	t.Run("初始化roomPool", func(t *testing.T) {
-		roomPoll := GameRoomPool()
+		roomPoll := pool()
 		assert.NotNil(t, roomPoll, gameRoomPool)
 	})
 }
@@ -20,7 +20,7 @@ func TestGetJoinableRoom(t *testing.T) {
 	fullRoomId := "fullRoomid"
 	full := &Room{RoomId: fullRoomId, userMap: map[int64]*RoomUser{}}
 	for i := int64(0); i < RoomUserLimit; i++ {
-		full.userMap[i] = &RoomUser{PlayerId: i}
+		full.userMap[i] = &RoomUser{UserId: i}
 	}
 	full.userMap[1] = &RoomUser{}
 

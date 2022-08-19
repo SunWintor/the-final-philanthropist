@@ -1,8 +1,7 @@
-package stage
+package game
 
 import (
 	"github.com/SunWintor/tfp/server/core/game/hero"
-	"github.com/SunWintor/tfp/server/core/game/process"
 	"time"
 )
 
@@ -16,7 +15,7 @@ func (g *gameStart) templateInit() {
 	g.duration = 3 * time.Second
 }
 
-func (g *gameStart) Run(ctx *process.ProcessContext) <-chan time.Time {
+func (g *gameStart) Run(ctx *ProcessContext) <-chan time.Time {
 	for _, player := range ctx.PlayerMap {
 		h := &hero.Foo2Die{}
 		h.Init()

@@ -1,19 +1,18 @@
-package process
+package game
 
 import (
-	"github.com/SunWintor/tfp/server/core/game/process/stage"
 	"github.com/SunWintor/tfp/server/model"
 	"time"
 )
 
 type Process struct {
-	Stage          stage.Stage
+	Stage          Stage
 	StageStartTime time.Time
 	ProcessContext *ProcessContext
 }
 
 func (p *Process) Start() {
-	p.Stage = stage.StageMap[stage.GameStartStage]
+	p.Stage = StageMap[GameStartStage]
 	for {
 		select {
 		case <-p.ProcessContext.EndGame:
