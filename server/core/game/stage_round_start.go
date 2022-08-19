@@ -1,7 +1,6 @@
-package stage
+package game
 
 import (
-	"github.com/SunWintor/tfp/server/core/game/process"
 	"time"
 )
 
@@ -15,7 +14,7 @@ func (g *roundStart) templateInit() {
 	g.duration = 3 * time.Second
 }
 
-func (g *roundStart) Run(ctx *process.ProcessContext) <-chan time.Time {
+func (g *roundStart) Run(ctx *ProcessContext) <-chan time.Time {
 	ctx.Round++
 	ctx.InitCurrentRound()
 	return g.baseStage.Run(ctx)

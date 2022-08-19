@@ -134,7 +134,7 @@ func (r *Room) gameInit() {
 		player := value.ToPlayer()
 		playerMap[player.PlayerId] = player
 	}
-	r.Game.RoundInit(playerMap)
+	r.Game.GameInit(playerMap)
 	endChan := r.Game.Start()
 	go func() {
 		<-endChan

@@ -1,22 +1,22 @@
-package process
-
-import (
-	"github.com/SunWintor/tfp/server/core/game"
-)
+package game
 
 type ProcessContext struct {
 	Round            int64
-	PlayerMap        map[string]*game.Player // 该map初始化后便不会变动，所以无需加锁便可操作。
+	PlayerMap        map[string]*Player // 该map初始化后便不会变动，所以无需加锁便可操作。
 	CurrentRoundInfo *RoundInfo
 	RoundHistory     []*RoundInfo
 	EndGame          chan struct{}
 }
 
+const (
+	PublicOpinionBet = 2
+)
+
 func (p *ProcessContext) InitCurrentRound() {
 	p.CurrentRoundInfo = &RoundInfo{
 		RoundNo:         p.Round,
-		PublicOpinion:   p.Round + 2,
-		DonatedInfoList: make([]*DonatedInfo, len(p.PlayerMap)),
+		PublicOpinion:   p.Round + PublicOpinionBet,
+		DonatedInfoList: make([]*DonatedInfo, 0, len(p.PlayerMap)),
 	}
 	for playerId, player := range p.PlayerMap {
 		p.CurrentRoundInfo.DonatedInfoList = append(p.CurrentRoundInfo.DonatedInfoList, &DonatedInfo{
@@ -30,20 +30,31 @@ func (p *ProcessContext) InitCurrentRound() {
 	}
 }
 
+func (p *ProcessContext) SyncDonated() {
+	for _, donatedInfo := range p.CurrentRoundInfo.DonatedInfoList {
+		p.SyncMoneyDec(donatedInfo.DonatedMoney, donatedInfo)
+	}
+}
+
 func (p *ProcessContext) SyncPunishment() {
 	for _, donatedInfo := range p.CurrentRoundInfo.DonatedInfoList {
-		if donatedInfo.PunishmentMoney == 0 {
-			continue
-		}
-		player, _ := p.PlayerMap[donatedInfo.PlayerId]
-		if player.Hero.IsBankrupt() {
-			continue
-		}
-		player.Hero.Punishment(p.CurrentRoundInfo.PublicOpinion)
-		if player.Hero.IsBankrupt() {
-			donatedInfo.Bankrupt = true
-		}
+		p.SyncMoneyDec(donatedInfo.PunishmentMoney, donatedInfo)
 	}
+}
+
+func (p *ProcessContext) SyncMoneyDec(money int64, donatedInfo *DonatedInfo) {
+	if money == 0 {
+		return
+	}
+	player, _ := p.PlayerMap[donatedInfo.PlayerId]
+	if player.Hero.IsBankrupt() {
+		return
+	}
+	player.Hero.DecMoney(money)
+	if player.Hero.IsBankrupt() {
+		donatedInfo.Bankrupt = true
+	}
+	return
 }
 
 func (p *ProcessContext) RoundToHistory() {

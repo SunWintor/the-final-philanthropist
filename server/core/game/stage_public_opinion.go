@@ -1,7 +1,6 @@
-package stage
+package game
 
 import (
-	"github.com/SunWintor/tfp/server/core/game/process"
 	"time"
 )
 
@@ -15,10 +14,10 @@ func (g *publicOpinion) templateInit() {
 	g.duration = 5 * time.Second
 }
 
-func (g *publicOpinion) Run(ctx *process.ProcessContext) <-chan time.Time {
+func (g *publicOpinion) Run(ctx *ProcessContext) <-chan time.Time {
 	currentRound := ctx.CurrentRoundInfo
-	minPlayerList := currentRound.DonatedPlayer(currentRound.MinDonated())
-	currentRound.PunishmentPlayer(minPlayerList)
+	minPlayerList := currentRound.PlayerByDonated(currentRound.MinDonated())
+	currentRound.PunishmentGen(minPlayerList)
 	ctx.SyncPunishment()
 	return g.baseStage.Run(ctx)
 }

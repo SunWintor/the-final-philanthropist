@@ -1,13 +1,12 @@
-package stage
+package game
 
 import (
-	"github.com/SunWintor/tfp/server/core/game/process"
 	"time"
 )
 
 type Stage interface {
-	Run(ctx *process.ProcessContext) <-chan time.Time
-	Next(ctx *process.ProcessContext) Stage
+	Run(ctx *ProcessContext) <-chan time.Time
+	Next(ctx *ProcessContext) Stage
 	setNext(stage Stage)
 	templateInit()
 	GetStage() int64
@@ -32,11 +31,11 @@ func (s *baseStage) GetDurationSecond() int64 {
 	return int64(s.duration / time.Second)
 }
 
-func (s *baseStage) Run(ctx *process.ProcessContext) <-chan time.Time {
+func (s *baseStage) Run(ctx *ProcessContext) <-chan time.Time {
 	return time.After(s.duration)
 }
 
-func (s *baseStage) Next(ctx *process.ProcessContext) Stage {
+func (s *baseStage) Next(ctx *ProcessContext) Stage {
 	return s.next
 }
 

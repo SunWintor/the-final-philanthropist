@@ -1,4 +1,4 @@
-package stage
+package game
 
 import "time"
 
@@ -11,4 +11,10 @@ func (g *donatedEnd) templateInit() {
 	g.stage = DonatedEndStage
 	g.stageName = "捐赠结束阶段"
 	g.duration = 3 * time.Second
+}
+
+func (g *donatedEnd) Run(ctx *ProcessContext) <-chan time.Time {
+	ctx.SyncDonated()
+	ctx.JudgementGameEnd()
+	return g.baseStage.Run(ctx)
 }
