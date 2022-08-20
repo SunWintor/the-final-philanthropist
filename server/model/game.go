@@ -44,9 +44,10 @@ type RoundDonatedInfo struct {
 }
 
 type RoundInfo struct {
-	RoundNo       int64  `json:"round_no"`
-	PublicOpinion int64  `json:"public_opinion"`
-	Stage         *Stage `json:"stage"`
+	RoundNo          int64         `json:"round_no"`
+	PublicOpinion    int64         `json:"public_opinion"`
+	Stage            *Stage        `json:"stage"`
+	CurrentRoundInfo *RoundHistory `json:"current_round_info"`
 }
 
 type Stage struct {

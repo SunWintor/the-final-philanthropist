@@ -15,7 +15,7 @@ func (g *roundEnd) templateInit() {
 }
 
 func (g *roundEnd) Run(ctx *ProcessContext) <-chan time.Time {
-	ctx.RoundToHistory()
-	ctx.JudgementGameEnd()
+	ctx.roundToHistory()
+	ctx.judgementGameEnd()
 	return g.baseStage.Run(ctx)
 }

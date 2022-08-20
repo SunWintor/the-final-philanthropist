@@ -54,5 +54,5 @@ func (g *Game) Donated(playerId string, donated int64) error {
 	if g.Process.Stage.GetStage() != DonatedStage {
 		return ecode.StageNotDonatedError
 	}
-	return g.Process.ProcessContext.CurrentRoundInfo.Donated(playerId, donated)
+	return g.Process.ProcessContext.CurrentRoundInfo.donated(playerId, donated)
 }

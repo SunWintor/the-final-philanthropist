@@ -44,16 +44,18 @@ func getUserStatusReadyRoom(userId int64) (r *room.Room, err error) {
 	return
 }
 
-func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *model.JoinRandomRoomReply, err error) {
-	roomId := room.GetUserRoomId(arg.UserId)
-	if roomId != "" {
-		res.RoomId = roomId
+func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *model.RoomInfoReply, err error) {
+	res = new(model.RoomInfoReply)
+	var r *room.Room
+	r, err = room.UserRoom(arg.UserId)
+	if r != nil {
+		res = r.ToReply()
 		return
 	}
-	r := room.GetJoinableRoom()
-	res.RoomId = r.RoomId
+	r = room.GetJoinableRoom()
 	roomUser := room.GenerateRoomUser(arg.UserId)
 	err = r.Join(roomUser)
+	res = r.ToReply()
 	return
 }
 
@@ -68,7 +70,8 @@ func (s *Service) ExitRoom(c *gin.Context, arg *model.UserIdReq) (err error) {
 }
 
 func (s *Service) RoomInfo(c *gin.Context, arg *model.RoomInfoReq) (res *model.RoomInfoReply, err error) {
-	r := room.GetRoom(arg.RoomId)
+	var r *room.Room
+	r, err = room.UserRoom(arg.UserId)
 	if r == nil {
 		err = ecode.RoomNotExistsError
 		return

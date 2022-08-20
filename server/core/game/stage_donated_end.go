@@ -14,7 +14,7 @@ func (g *donatedEnd) templateInit() {
 }
 
 func (g *donatedEnd) Run(ctx *ProcessContext) <-chan time.Time {
-	ctx.SyncDonated()
-	ctx.JudgementGameEnd()
+	ctx.decPlayerDonatedMoney()
+	ctx.judgementGameEnd()
 	return g.baseStage.Run(ctx)
 }

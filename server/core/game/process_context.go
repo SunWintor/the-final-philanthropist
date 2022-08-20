@@ -12,7 +12,7 @@ const (
 	PublicOpinionBet = 2
 )
 
-func (p *ProcessContext) InitCurrentRound() {
+func (p *ProcessContext) initCurrentRound() {
 	p.CurrentRoundInfo = &RoundInfo{
 		RoundNo:         p.Round,
 		PublicOpinion:   p.Round + PublicOpinionBet,
@@ -23,26 +23,26 @@ func (p *ProcessContext) InitCurrentRound() {
 			PlayerId:        playerId,
 			CurrentMoney:    player.Hero.GetCurrentMoney(),
 			MoneyLimit:      player.Hero.GetMoneyLimit(),
-			DonatedMoney:    p.CurrentRoundInfo.PublicOpinion + 2, // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
-			PunishmentMoney: 0,                                    // 显式声明，表示全部字段都处理过了
-			Bankrupt:        false,                                // 同上
+			DonatedMoney:    p.CurrentRoundInfo.defaultDonatedMoney(), // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
+			PunishmentMoney: 0,                                        // 显式声明，表示全部字段都处理过了
+			Bankrupt:        false,                                    // 同上
 		})
 	}
 }
 
-func (p *ProcessContext) SyncDonated() {
+func (p *ProcessContext) decPlayerDonatedMoney() {
 	for _, donatedInfo := range p.CurrentRoundInfo.DonatedInfoList {
-		p.SyncMoneyDec(donatedInfo.DonatedMoney, donatedInfo)
+		p.decPlayerMoney(donatedInfo.DonatedMoney, donatedInfo)
 	}
 }
 
-func (p *ProcessContext) SyncPunishment() {
+func (p *ProcessContext) decPlayerPunishmentMoney() {
 	for _, donatedInfo := range p.CurrentRoundInfo.DonatedInfoList {
-		p.SyncMoneyDec(donatedInfo.PunishmentMoney, donatedInfo)
+		p.decPlayerMoney(donatedInfo.PunishmentMoney, donatedInfo)
 	}
 }
 
-func (p *ProcessContext) SyncMoneyDec(money int64, donatedInfo *DonatedInfo) {
+func (p *ProcessContext) decPlayerMoney(money int64, donatedInfo *DonatedInfo) {
 	if money == 0 {
 		return
 	}
@@ -57,11 +57,11 @@ func (p *ProcessContext) SyncMoneyDec(money int64, donatedInfo *DonatedInfo) {
 	return
 }
 
-func (p *ProcessContext) RoundToHistory() {
+func (p *ProcessContext) roundToHistory() {
 	p.RoundHistory = append(p.RoundHistory, p.CurrentRoundInfo)
 }
 
-func (p *ProcessContext) JudgementGameEnd() {
+func (p *ProcessContext) judgementGameEnd() {
 	lifePlayerCount := 0
 	for _, player := range p.PlayerMap {
 		if player.Hero.IsBankrupt() {
