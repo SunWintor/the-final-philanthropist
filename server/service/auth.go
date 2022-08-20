@@ -11,8 +11,9 @@ import (
 
 // Register fixme 当前版本，如果并发去注册同一个账号，会出问题。
 // 暂时先不管，等用户量上来了再搞。
-func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *model.UserInfo, err error) {
-	userInfo = new(model.UserInfo)
+func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (res *model.UserInfoReply, err error) {
+	userInfo := new(model.UserInfo)
+	res = new(model.UserInfoReply)
 	if _, ok := user.GetCopyByName(arg.Username); ok {
 		err = ecode.AccountAlreadyRegError
 		return
@@ -28,13 +29,14 @@ func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (userInfo *mo
 	userInfo.Password = arg.Password
 	userInfo.Token = token
 	user.Put(userInfo)
+	res = userInfo.ToReply()
 	return
 }
 
-func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInfo, err error) {
+func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInfoReply, err error) {
 	var ok bool
 	var userInfo *model.UserInfo
-	res = new(model.UserInfo)
+	res = new(model.UserInfoReply)
 	if userInfo, ok = user.GetCopyByName(arg.Username); !ok {
 		err = ecode.AccountNotExistsError
 		return
@@ -44,6 +46,6 @@ func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInf
 		return
 	}
 	_, err = filter.JWTAuth(userInfo.Token)
-	res = userInfo
+	res = userInfo.ToReply()
 	return
 }

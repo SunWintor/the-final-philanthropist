@@ -13,6 +13,7 @@ var svr *service.Service
 func Handle(r *gin.Engine) *gin.Engine {
 	svr = service.New()
 
+	handleHtml(r)
 	handleHome(r)
 	handleAuth(r)
 	handleRoom(r)

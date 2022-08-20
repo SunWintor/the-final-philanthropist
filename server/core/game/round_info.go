@@ -21,12 +21,17 @@ type DonatedInfo struct {
 	Bankrupt        bool
 }
 
-func (g *RoundInfo) Donated(playerId string, donated int64) error {
+func (r *RoundInfo) defaultDonatedMoney() int64 {
+	return r.PublicOpinion + 2
+}
+
+func (g *RoundInfo) donated(playerId string, donated int64) error {
 	for _, donatedInfo := range g.DonatedInfoList {
 		if donatedInfo.PlayerId != playerId {
 			continue
 		}
-		if donatedInfo.CurrentMoney > donated {
+		donatedInfo.DonatedMoney = donated
+		if donatedInfo.CurrentMoney < donated {
 			donatedInfo.DonatedMoney = donatedInfo.CurrentMoney
 		}
 		return nil
@@ -34,7 +39,7 @@ func (g *RoundInfo) Donated(playerId string, donated int64) error {
 	return ecode.PlayerNotExistsError
 }
 
-func (r *RoundInfo) MinDonated() int64 {
+func (r *RoundInfo) minDonated() int64 {
 	minDonated := int64(math.MaxInt64)
 	for _, donatedInfo := range r.DonatedInfoList {
 		if donatedInfo.DonatedMoney < minDonated {
@@ -44,7 +49,7 @@ func (r *RoundInfo) MinDonated() int64 {
 	return minDonated
 }
 
-func (r *RoundInfo) MaxDonated() int64 {
+func (r *RoundInfo) maxDonated() int64 {
 	maxDonated := int64(0)
 	for _, donatedInfo := range r.DonatedInfoList {
 		if donatedInfo.DonatedMoney > maxDonated {
@@ -54,7 +59,7 @@ func (r *RoundInfo) MaxDonated() int64 {
 	return maxDonated
 }
 
-func (r *RoundInfo) PlayerByDonated(donated int64) []string {
+func (r *RoundInfo) playerByDonated(donated int64) []string {
 	res := make([]string, 0)
 	for _, donatedInfo := range r.DonatedInfoList {
 		if donatedInfo.DonatedMoney == donated {
@@ -64,9 +69,10 @@ func (r *RoundInfo) PlayerByDonated(donated int64) []string {
 	return res
 }
 
-func (r *RoundInfo) PunishmentGen(playerIdList []string) {
-	playerIdMap := make(map[string]struct{}, len(playerIdList))
-	for _, playerId := range playerIdList {
+func (r *RoundInfo) reckonPunishment() {
+	minPlayerList := r.playerByDonated(r.minDonated())
+	playerIdMap := make(map[string]struct{}, len(minPlayerList)*2)
+	for _, playerId := range minPlayerList {
 		playerIdMap[playerId] = struct{}{}
 	}
 	for _, donatedInfo := range r.DonatedInfoList {

@@ -1,11 +1,7 @@
 package model
 
-type JoinRandomRoomReply struct {
-	RoomId string `json:"room_id"`
-}
-
 type RoomInfoReq struct {
-	RoomId string `json:"room_id" form:"room_id"`
+	UserId int64 `json:"user_id" form:"user_id"`
 }
 
 type RoomInfoReply struct {

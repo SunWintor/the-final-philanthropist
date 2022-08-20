@@ -3,7 +3,6 @@ package game
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func Test_round_end_Run(t *testing.T) {
@@ -54,15 +53,7 @@ func Test_round_end_Run(t *testing.T) {
 		}
 		StageMap[RoundEndStage].Run(ctx)
 		assert.Equal(t, ctx.CurrentRoundInfo, ctx.RoundHistory[0])
-		pass := false
-		time.Sleep(100 * time.Millisecond)
-		select {
-		case <-ctx.EndGame:
-			pass = false
-		default:
-			pass = true
-		}
-		assert.Equal(t, pass, true)
+		assertGaming(t, ctx)
 		return
 	})
 }

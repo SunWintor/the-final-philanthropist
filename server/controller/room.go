@@ -45,8 +45,8 @@ func joinRandomRoom(c *gin.Context) {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	roomId, err := svr.JoinRandomRoom(c, u)
-	gin_util.AutoResult(c, roomId, err)
+	r, err := svr.JoinRandomRoom(c, u)
+	gin_util.AutoResult(c, r, err)
 }
 
 func exitRoom(c *gin.Context) {

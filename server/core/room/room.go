@@ -73,16 +73,14 @@ func (r *Room) Ready(userId int64, ready bool) error {
 	return nil
 }
 
-func (r *Room) IsFull() bool {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
+func (r *Room) isFull() bool {
 	return len(r.userMap) == RoomUserLimit
 }
 
 func (r *Room) Join(roomUser *RoomUser) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if r.IsFull() {
+	if r.isFull() {
 		return errors.WithMessagef(ecode.RoomIsFullError, "roomUser:%v, room:%v", roomUser, r)
 	}
 	if roomUser.RoomId != "" {

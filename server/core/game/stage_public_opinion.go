@@ -16,8 +16,7 @@ func (g *publicOpinion) templateInit() {
 
 func (g *publicOpinion) Run(ctx *ProcessContext) <-chan time.Time {
 	currentRound := ctx.CurrentRoundInfo
-	minPlayerList := currentRound.PlayerByDonated(currentRound.MinDonated())
-	currentRound.PunishmentGen(minPlayerList)
-	ctx.SyncPunishment()
+	currentRound.reckonPunishment()
+	ctx.decPlayerPunishmentMoney()
 	return g.baseStage.Run(ctx)
 }

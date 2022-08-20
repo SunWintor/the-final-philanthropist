@@ -26,9 +26,10 @@ func (p *Process) Start() {
 }
 
 func (p *Process) ToGameInfoReply(userId int64) *model.GameInfo {
+	playerGameInfo := p.toUserInfoReply(userId)
 	return &model.GameInfo{
-		RoundInfo:        p.toRoundInfoReply(),
-		PlayerGameInfo:   p.toUserInfoReply(userId),
+		RoundInfo:        p.toRoundInfoReply(playerGameInfo.PlayerId),
+		PlayerGameInfo:   playerGameInfo,
 		RoundHistoryList: p.toRoundHistoryReplyList(),
 	}
 }
@@ -53,7 +54,17 @@ func (p *Process) toUserInfoReply(userId int64) *model.PlayerGameInfo {
 	return userInfo
 }
 
-func (p *Process) toRoundInfoReply() *model.RoundInfo {
+func (p *Process) toRoundInfoReply(playerId string) *model.RoundInfo {
+	currentRoundInfo := &model.RoundHistory{
+		RoundNo: p.ProcessContext.Round,
+	}
+	for _, donatedInfo := range p.ProcessContext.CurrentRoundInfo.DonatedInfoList {
+		donatedInfoReply := donatedInfo.ToReply()
+		if p.Stage.GetStage() == DonatedStage && donatedInfo.PlayerId != playerId {
+			donatedInfoReply.DonatedMoney = -1
+		}
+		currentRoundInfo.RoundDonatedInfoList = append(currentRoundInfo.RoundDonatedInfoList, donatedInfo.ToReply())
+	}
 	return &model.RoundInfo{
 		RoundNo:       p.ProcessContext.Round,
 		PublicOpinion: p.ProcessContext.CurrentRoundInfo.PublicOpinion,
@@ -63,5 +74,6 @@ func (p *Process) toRoundInfoReply() *model.RoundInfo {
 			Name:           p.Stage.GetName(),
 			DurationSecond: p.Stage.GetDurationSecond(),
 		},
+		CurrentRoundInfo: currentRoundInfo,
 	}
 }

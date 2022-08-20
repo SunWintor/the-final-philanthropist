@@ -93,7 +93,7 @@ func (r *RoomPool) getRandomReadyRoom() *Room {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, v := range r.roomReadyMap {
-		if v.IsFull() {
+		if v.isFull() {
 			continue
 		}
 		return v
