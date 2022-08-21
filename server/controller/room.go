@@ -8,7 +8,7 @@ import (
 )
 
 func handleRoom(r *gin.Engine) {
-	room := r.Group("/room") //, filter.JWTAuthHandler())
+	room := r.Group("/room", filter.JWTAuthHandler())
 
 	room.POST("/join/random", joinRandomRoom, filter.EqualUltraViresHandler())
 	room.POST("/exit", exitRoom, filter.EqualUltraViresHandler())
@@ -45,8 +45,8 @@ func joinRandomRoom(c *gin.Context) {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	r, err := svr.JoinRandomRoom(c, u)
-	gin_util.AutoResult(c, r, err)
+	info, err := svr.JoinRandomRoom(c, u)
+	gin_util.AutoResult(c, info, err)
 }
 
 func exitRoom(c *gin.Context) {
@@ -60,7 +60,7 @@ func exitRoom(c *gin.Context) {
 }
 
 func roomInfo(c *gin.Context) {
-	var r *model.RoomInfoReq
+	var r *model.UserIdReq
 	if err := c.BindQuery(&r); err != nil {
 		gin_util.FailWithError(c, err)
 		return

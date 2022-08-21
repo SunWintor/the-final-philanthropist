@@ -9,4 +9,5 @@ var (
 	RoomNotReadyError       = newErr(10005, "房间未处于准备阶段", "room not ready")
 	InsufficientPlayerError = newErr(10006, "玩家人数不足", "insufficient player")
 	PlayerNotReadyError     = newErr(10007, "有玩家尚未准备", "some players are not ready")
+	GamingError             = newErr(10008, "游戏正在进行中", "gaming") // fixme 以后可以退出
 )

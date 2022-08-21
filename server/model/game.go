@@ -37,6 +37,8 @@ type RoundHistory struct {
 
 type RoundDonatedInfo struct {
 	PlayerId        string `json:"player_id"`
+	Username        string `json:"username"`
+	HeroName        string `json:"hero_name"`
 	CurrentMoney    int64  `json:"current_money"`
 	DonatedMoney    int64  `json:"donated_money"`
 	PunishmentMoney int64  `json:"punishment_money"`

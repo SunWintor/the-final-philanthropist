@@ -8,33 +8,36 @@ import (
 )
 
 type RoomUser struct {
-	UserId  int64
-	RoomId  string
-	IsReady bool
+	UserId   int64
+	Username string
+	RoomId   string
+	IsReady  bool
 }
 
 func GenerateRoomUser(userId int64) *RoomUser {
+	userName := ""
+	u, ok := user.GetCopyById(userId)
+	if ok {
+		userName = u.Username
+	}
 	return &RoomUser{
-		UserId: userId,
+		UserId:   userId,
+		Username: userName,
 	}
 }
 
 func (p *RoomUser) ToReply() *model.RoomUser {
 	return &model.RoomUser{
-		UserId:  p.UserId,
-		IsReady: p.IsReady,
+		UserId:   p.UserId,
+		IsReady:  p.IsReady,
+		Username: p.Username,
 	}
 }
 
 func (p *RoomUser) ToPlayer() *game.Player {
-	userName := ""
-	u, ok := user.GetCopyById(p.UserId)
-	if ok {
-		userName = u.Username
-	}
 	return &game.Player{
 		PlayerId: common.GetRandomPlayerId(),
 		UserId:   p.UserId,
-		Username: userName,
+		Username: p.Username,
 	}
 }

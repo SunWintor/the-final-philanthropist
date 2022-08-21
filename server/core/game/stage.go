@@ -76,5 +76,5 @@ func init() {
 	StageMap[DonatedEndStage].setNext(StageMap[PublicOpinionStage])
 	StageMap[PublicOpinionStage].setNext(StageMap[BankruptcyStage])
 	StageMap[BankruptcyStage].setNext(StageMap[RoundEndStage])
-	StageMap[RoundEndStage].setNext(StageMap[DonatedStage])
+	StageMap[RoundEndStage].setNext(StageMap[RoundStartStage])
 }

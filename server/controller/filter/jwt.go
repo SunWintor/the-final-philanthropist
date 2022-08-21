@@ -9,8 +9,13 @@ import (
 
 func JWTAuthHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Request.Header.Get("x-token")
-		claims, err := JWTAuth(token)
+		token, err := c.Request.Cookie("x-Token")
+		if err != nil {
+			http2.FailWithError(c, err)
+			c.Abort()
+			return
+		}
+		claims, err := JWTAuth(token.Value)
 		if err != nil {
 			http2.FailWithError(c, err)
 			c.Abort()

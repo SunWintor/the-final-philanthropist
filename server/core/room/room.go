@@ -53,7 +53,7 @@ func GetUserRoomId(userId int64) string {
 
 func UserRoom(userId int64) (r *Room, err error) {
 	roomId := GetUserRoomId(userId)
-	if roomId != "" {
+	if roomId == "" {
 		err = ecode.PlayerNotInRoomError
 		return
 	}
@@ -157,8 +157,13 @@ func (r *Room) GameEnd() {
 func (r *Room) ToReply() *model.RoomInfoReply {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+	gameId := ""
+	if r.Game != nil {
+		gameId = r.Game.GameId
+	}
 	res := &model.RoomInfoReply{
 		RoomId: r.RoomId,
+		GameId: gameId,
 		Status: r.Status,
 	}
 	for _, roomUser := range r.userMap {

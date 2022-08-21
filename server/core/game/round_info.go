@@ -14,6 +14,8 @@ type RoundInfo struct {
 
 type DonatedInfo struct {
 	PlayerId        string
+	Username        string
+	HeroName        string
 	CurrentMoney    int64
 	MoneyLimit      int64
 	DonatedMoney    int64
@@ -96,6 +98,8 @@ func (r *RoundInfo) ToReply() *model.RoundHistory {
 func (d *DonatedInfo) ToReply() *model.RoundDonatedInfo {
 	return &model.RoundDonatedInfo{
 		PlayerId:        d.PlayerId,
+		Username:        d.Username,
+		HeroName:        d.HeroName,
 		CurrentMoney:    d.CurrentMoney,
 		DonatedMoney:    d.DonatedMoney,
 		PunishmentMoney: d.PunishmentMoney,
