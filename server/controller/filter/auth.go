@@ -9,6 +9,7 @@ func EqualUltraViresHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//token := c.Request.Header.Get("x-token")
 		//uId := c.Request.Header.Get("uid")
+		// todo 如果用户不存在，直接返回让其重新登录。
 		c.Next()
 	}
 }

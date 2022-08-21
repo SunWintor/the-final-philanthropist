@@ -13,7 +13,9 @@ func (s *Service) GameInfo(c *gin.Context, arg *model.GameInfoReq) (res *model.G
 	if err != nil {
 		return
 	}
-	res = r.Game.ToReply(arg.UserId)
+	if r.Game != nil {
+		res = r.Game.ToReply(arg.UserId)
+	}
 	return
 }
 

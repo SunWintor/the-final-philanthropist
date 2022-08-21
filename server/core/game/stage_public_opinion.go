@@ -18,5 +18,6 @@ func (g *publicOpinion) Run(ctx *ProcessContext) <-chan time.Time {
 	currentRound := ctx.CurrentRoundInfo
 	currentRound.reckonPunishment()
 	ctx.decPlayerPunishmentMoney()
+	ctx.judgementGameEnd()
 	return g.baseStage.Run(ctx)
 }

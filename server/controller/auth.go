@@ -5,7 +5,6 @@ import (
 	"github.com/SunWintor/tfp/server/controller/gin_util"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 func handleAuth(r *gin.Engine) {
@@ -21,7 +20,6 @@ func login(c *gin.Context) {
 		gin_util.FailWithError(c, err)
 		return
 	}
-	log.Printf("%+v", l)
 	l.Password = common.EncryptionPassword(l.Password)
 	userInfo, err := svr.Login(c, l)
 	gin_util.AutoResult(c, userInfo, err)

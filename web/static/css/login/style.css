@@ -32,10 +32,10 @@ body {
   font-size: 12px;
 }
 .pen-title span .fa {
-  color: #006a71;
+  color: #7e3af2;
 }
 .pen-title span a {
-  color: #006a71;
+  color: #7e3af2;
   font-weight: 600;
   text-decoration: none;
 }
@@ -128,10 +128,10 @@ body {
 .card .title {
   position: relative;
   z-index: 1;
-  border-left: 5px solid #006a71;
+  border-left: 5px solid #7e3af2;
   margin: 0 0 35px;
   padding: 10px 0 10px 50px;
-  color: #006a71;
+  color: #7e3af2;
   font-size: 32px;
   font-weight: 600;
   text-transform: uppercase;
@@ -229,7 +229,7 @@ body {
   top: 50%;
   left: 50%;
   display: block;
-  background: #006a71;
+  background: #7e3af2;
   width: 30px;
   height: 30px;
   border-radius: 100%;
@@ -273,7 +273,7 @@ body {
 }
 .card.alt .toggle {
   position: relative;
-  background: #006a71;
+  background: #7e3af2;
   width: 140px;
   height: 140px;
   border-radius: 100%;
@@ -343,7 +343,7 @@ body {
   border-color: #ffffff;
 }
 .card.alt .button-container button span {
-  color: #006a71;
+  color: #7e3af2;
 }
 .card.alt .button-container button:hover {
   background: rgba(255, 255, 255, 0.9);

@@ -65,13 +65,19 @@ func (s *Service) ExitRoom(c *gin.Context, arg *model.UserIdReq) (err error) {
 	if err != nil {
 		return
 	}
+	if r.Status == room.Gaming {
+		err = ecode.GamingError
+	}
 	err = r.Exit(arg.UserId)
 	return
 }
 
-func (s *Service) RoomInfo(c *gin.Context, arg *model.RoomInfoReq) (res *model.RoomInfoReply, err error) {
+func (s *Service) RoomInfo(c *gin.Context, arg *model.UserIdReq) (res *model.RoomInfoReply, err error) {
 	var r *room.Room
 	r, err = room.UserRoom(arg.UserId)
+	if err != nil {
+		return
+	}
 	if r == nil {
 		err = ecode.RoomNotExistsError
 		return

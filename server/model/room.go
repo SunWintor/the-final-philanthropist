@@ -1,9 +1,5 @@
 package model
 
-type RoomInfoReq struct {
-	UserId int64 `json:"user_id" form:"user_id"`
-}
-
 type RoomInfoReply struct {
 	GameId       string      `json:"game_id"`
 	RoomId       string      `json:"room_id"`
@@ -12,8 +8,8 @@ type RoomInfoReply struct {
 }
 
 type RoomUser struct {
-	PlayerId string `json:"player_id"`
 	UserId   int64  `json:"user_id"`
+	Username string `json:"username"`
 	IsReady  bool   `json:"is_ready"`
 }
 

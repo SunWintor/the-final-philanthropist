@@ -10,15 +10,16 @@ type Game struct {
 	RoomId  string
 	Status  int64
 	Process *Process
-	End     chan struct{}
 }
 
 const (
-	Gaming = 1
-	Ended  = 2
+	NotStart = 1
+	Gaming   = 2
+	Ended    = 3
 )
 
 func (g *Game) GameInit(playerMap map[string]*Player) {
+	g.Status = NotStart
 	g.Process = &Process{
 		ProcessContext: &ProcessContext{
 			Round:     0,
@@ -26,27 +27,31 @@ func (g *Game) GameInit(playerMap map[string]*Player) {
 			EndGame:   make(chan struct{}),
 		},
 	}
+	g.Process.ProcessContext.initCurrentRound()
 }
 
 func (g *Game) Start() <-chan struct{} {
-	g.End = make(chan struct{})
 	g.Status = Gaming
 	go g.start()
-	return g.End
+	return g.Process.ProcessContext.EndGame
 }
 
 func (g *Game) start() {
 	go g.Process.Start()
-	<-g.End
+	<-g.Process.ProcessContext.EndGame
 	g.Status = Ended
 }
 
 func (g *Game) ToReply(userId int64) *model.GameInfoReply {
+	var gameInfo *model.GameInfo
+	if g.Process != nil {
+		gameInfo = g.Process.ToGameInfoReply(userId)
+	}
 	return &model.GameInfoReply{
 		GameId:   g.GameId,
 		RoomId:   g.RoomId,
 		Status:   g.Status,
-		GameInfo: g.Process.ToGameInfoReply(userId),
+		GameInfo: gameInfo,
 	}
 }
 

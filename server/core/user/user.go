@@ -40,12 +40,12 @@ func GetCopyByName(username string) (userInfo *model.UserInfo, ok bool) {
 }
 
 // GetCopyById 获取的是副本，如果想要修改获取到的数据，需要使用put。
-func GetCopyById(Id int64) (userInfo *model.UserInfo, ok bool) {
+func GetCopyById(Id int64) (res *model.UserInfo, ok bool) {
 	user.mu.RLock()
 	defer user.mu.RUnlock()
-	var tmp *model.UserInfo
+	var userInfo *model.UserInfo
 	userInfo, ok = user.IdMap[Id]
-	userInfo = tmp.DeepCopy()
+	res = userInfo.DeepCopy()
 	return
 }
 

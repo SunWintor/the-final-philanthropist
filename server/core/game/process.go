@@ -58,13 +58,15 @@ func (p *Process) toRoundInfoReply(playerId string) *model.RoundInfo {
 	currentRoundInfo := &model.RoundHistory{
 		RoundNo: p.ProcessContext.Round,
 	}
+	var roundInfoList []*model.RoundDonatedInfo
 	for _, donatedInfo := range p.ProcessContext.CurrentRoundInfo.DonatedInfoList {
 		donatedInfoReply := donatedInfo.ToReply()
 		if p.Stage.GetStage() == DonatedStage && donatedInfo.PlayerId != playerId {
 			donatedInfoReply.DonatedMoney = -1
 		}
-		currentRoundInfo.RoundDonatedInfoList = append(currentRoundInfo.RoundDonatedInfoList, donatedInfo.ToReply())
+		roundInfoList = append(roundInfoList, donatedInfoReply)
 	}
+	currentRoundInfo.RoundDonatedInfoList = roundInfoList
 	return &model.RoundInfo{
 		RoundNo:       p.ProcessContext.Round,
 		PublicOpinion: p.ProcessContext.CurrentRoundInfo.PublicOpinion,

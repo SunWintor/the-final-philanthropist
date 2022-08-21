@@ -8,7 +8,7 @@ import (
 )
 
 func handleGame(r *gin.Engine) {
-	home := r.Group("/game", filter.JWTAuthHandler())
+	home := r.Group("/game", filter.JWTAuthHandler(), filter.EqualUltraViresHandler())
 
 	home.GET("/info", gameInfo)
 	home.POST("/donated", donated)

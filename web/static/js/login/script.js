@@ -58,7 +58,7 @@ $(function (){
   });
 })
 
-token = getToken()
+token = $.cookie('x-Token')
 if (token) {
   $(location).attr('href', '/room');
 }
