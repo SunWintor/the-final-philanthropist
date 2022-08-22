@@ -80,3 +80,10 @@ function showDialogBox(msg, type, width, height) {
         m_Dialog.style.top = m_Top + 'px';
     }, 0);
 }
+
+comparePlayer = function(a,b){
+    if (a["player_id"]) {
+        return a["player_id"].localeCompare(b["player_id"])
+    }
+    return a["username"].localeCompare(b["username"])
+}

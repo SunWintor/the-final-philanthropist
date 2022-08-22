@@ -25,6 +25,10 @@ func (s *Service) Donated(c *gin.Context, arg *model.DonatedReq) (err error) {
 	if err != nil {
 		return
 	}
+	if r.Status != room.Gaming {
+		err = ecode.GameNotStartError
+		return
+	}
 	if r.Game.Process.ProcessContext.Round != arg.RoundNo {
 		err = ecode.RoundAlreadyEndError
 	}

@@ -1,10 +1,8 @@
-/**
- * For usage, visit Chart.js docs https://www.chartjs.org/docs/latest/
- */
-const lineConfig = {
+
+lineConfig = {
   type: 'line',
   data: {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: chartsLabels,
     datasets: [
       {
         label: 'Organic',
@@ -12,21 +10,24 @@ const lineConfig = {
          * These colors come from Tailwind CSS palette
          * https://tailwindcss.com/docs/customizing-colors/#default-color-palette
          */
-        backgroundColor: '#0694a2',
-        borderColor: '#0694a2',
-        data: [43, 48, 40, 99, 99, 99, 70],
+        backgroundColor: '#fef9c3',
+        borderColor: '#fef9c3',
+        data: [43, 48, 40, 108, 0, 0, 70],
         fill: false,
       },
       {
         label: 'Paid',
         fill: false,
-        /**
-         * These colors come from Tailwind CSS palette
-         * https://tailwindcss.com/docs/customizing-colors/#default-color-palette
-         */
         backgroundColor: '#7e3af2',
         borderColor: '#7e3af2',
         data: [24, 50, 64, 74, 52, 51, 65],
+      },
+      {
+        label: 'Paid3',
+        fill: false,
+        backgroundColor: '#666666',
+        borderColor: '#666666',
+        data: [24, 1, 2, 3, 4, 5, 6],
       },
     ],
   },
@@ -52,20 +53,26 @@ const lineConfig = {
         display: true,
         scaleLabel: {
           display: true,
-          labelString: 'Month',
+          labelString: 'Round',
         },
       },
       y: {
         display: true,
         scaleLabel: {
           display: true,
-          labelString: 'Value',
+          labelString: 'Money',
         },
       },
     },
   },
 }
 
-// change this to the id of your chart element in HMTL
-const lineCtx = document.getElementById('line')
-window.myLine = new Chart(lineCtx, lineConfig)
+function flushCharts() {
+  const donated_history = document.getElementById('donated_history')
+  window.myLine = new Chart(donated_history, lineConfig)
+}
+
+setInterval(flushCharts,500)
+
+const money_history = document.getElementById('money_history')
+window.myLine2 = new Chart(money_history, lineConfig)

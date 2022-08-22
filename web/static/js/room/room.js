@@ -1,20 +1,34 @@
 stageMap = {"-2":"未加入房间", "-1":"游戏未开始", "0":"游戏开始", "1":"回合开始", "2":"捐赠", "3":"捐赠结束", "4":"舆论惩罚", "5":"破产判定", "6":"游戏结束"}
 statusMap = {"0":notReadyTemplate, "1":readyTemplate, "2":lifeTemplate, "3":bankruptcyTemplate}
+colorList = ["#2563eb", "#eab308", "#dc2626", "#475569",
+    "#fef9c3", "#f0abfc", "#0f172a", "#d6d3d1" ]
 currentStage = "-2"
 roomId = ""
 gameId = ""
+playerId = ""
 // 1：游戏未开始，2：游戏已开始，3：游戏已结束
 roomStatus = 0
 //{player_id: '', user_id: 1, username: 'sdf', is_ready: false}
-playerMap = new Map();
+playerList = [];
 roundInfo = {}
+
+chartsLabels = []
+playerMoneyMap = new Map()
+playerHistoryMap = new Map()
+exampleHtml = ""
 
 init = function() {
     currentStage = "-2"
     roomId = ""
     gameId = ""
+    playerId = ""
     roomStatus = 0
-    playerMap = new Map();
+    playerList = new Map();
+    roundInfo = {}
+    chartsLabels = []
+    moneyDatasets = []
+    historyDatasets = []
+    exampleHtml = ""
 }
 
 tfp = function() {
@@ -40,7 +54,7 @@ flushPage = function() {
 
 flushPlayer = function() {
     html = ""
-    for (let roomUser of playerMap.values()) {
+    for (let roomUser of playerList) {
         if (roomUser.is_ready) {
             playerStatus = "1"
         } else {
@@ -56,11 +70,11 @@ flushPlayer = function() {
         username = roomUser.username?roomUser.username:"SILENT HOUSE"
         hero_name = roomUser.hero_name?roomUser.hero_name:"未选择英雄"
         current_money = roomUser.current_money?roomUser.current_money:0
-        public_opinion = roomUser.public_opinion?roomUser.public_opinion:0
+        punishment_money = roomUser.punishment_money?roomUser.punishment_money:0
         donated_money = roomUser.donated_money?roomUser.donated_money:0
         donated_money = donated_money >=0?donated_money:"-"
         html += userTemplate.signMix("/static/image/room/silenthouse-black.png", roomUser.username,
-            hero_name, current_money, statusMap[playerStatus], donated_money, public_opinion)
+            hero_name, current_money, statusMap[playerStatus], donated_money, punishment_money)
     }
     $('#player_list').html(html)
 }
@@ -118,14 +132,14 @@ function syncGameInfo(result) {
         roundInfo["round_no"] = Number(result["data"]["game_info"]["round_info"]["round_no"])
         roundInfo["public_opinion"] = Number(result["data"]["game_info"]["round_info"]["public_opinion"])
         currentStage = result["data"]["game_info"]["round_info"]["stage"]["stage"]
-        console.log(currentStage)
+        playerId = result["data"]["game_info"]["player_game_info"]["player_id"]
         startTimeUnix = Number(result["data"]["game_info"]["round_info"]["stage"]["start_time"])
         durationUnix = Number(result["data"]["game_info"]["round_info"]["stage"]["duration"]) * 1000
         roundInfo["stage_end_time"] = startTimeUnix + durationUnix
 
-        playerMap.clear()
+        playerList = []
         for (let roomUser of result["data"]["game_info"]["round_info"]["current_round_info"]["round_donated_info_list"]) {
-            playerMap.set(roomUser.player_id, {
+            playerList.push({
                 player_id: roomUser.player_id,
                 user_id: roomUser.user_id,
                 username: roomUser.username,
@@ -133,10 +147,49 @@ function syncGameInfo(result) {
                 is_ready: roomUser.is_ready,
                 current_money:roomUser.current_money,
                 donated_money:roomUser.donated_money,
+                punishment_money:roomUser.punishment_money,
                 bankrupt:roomUser.bankrupt,
             })
         }
+        playerList.sort(comparePlayer)
+        syncCharts(result)
         flushPage()
+    }
+}
+
+function syncCharts(result) {
+    playerDonatedMoneyMap = new Map()
+    playerHistoryMap = new Map()
+    color = 0
+    for (let roomUser of playerList) {
+        tempMoney = {
+            label: roomUser.username,
+            backgroundColor: colorList[color],
+            borderColor: colorList[color],
+            data: [],
+            fill: false,
+        }
+        tempHistory = {
+            label: roomUser.username,
+            backgroundColor: colorList[color],
+            borderColor: colorList[color],
+            data: [],
+            fill: false,
+        }
+        playerDonatedMoneyMap[roomUser.username] = tempMoney
+        playerHistoryMap[roomUser.username] = tempHistory
+        color++
+    }
+    chartsLabels = []
+    if (result["data"]["game_info"]["round_history_list"] == null) {
+        return
+    }
+    for (let history of result["data"]["game_info"]["round_history_list"]) {
+        chartsLabels.push(history["round_no"])
+        for (let donatedInfo of history["round_donated_info_list"]) {
+            playerDonatedMoneyMap[donatedInfo.username].data.push(Number(donatedInfo.donated_money))
+            playerHistoryMap[donatedInfo.username].data.push(Number(donatedInfo.current_money))
+        }
     }
 }
 
@@ -146,16 +199,17 @@ function syncRoomInfo(result) {
         gameId = result["data"]["game_id"]
         roomId = result["data"]["room_id"]
         roomStatus = Number(result["data"]["status"])
-        playerMap.clear()
+        playerList = []
         for (let roomUser of result["data"]["room_user_list"]) {
             //{player_id: '', user_id: 1, username: 'sdf', is_ready: false}
-            playerMap.set(roomUser.player_id, {
+            playerList.push({
                 player_id: roomUser.player_id,
                 user_id: roomUser.user_id,
                 username: roomUser.username,
                 is_ready: roomUser.is_ready
             })
         }
+        playerList.sort(comparePlayer)
         flushPage()
     }
 }
@@ -173,7 +227,6 @@ getRoomInfo = function() {
 
 $(function(){
     $('#game_start').bind('click', function () {
-        console.log("click")
         $.ajax({
             type:"post",
             url:"/room/join/random",
@@ -189,7 +242,6 @@ $(function(){
 
 $(function(){
     $('#ready').bind('click', function () {
-        console.log("click")
         $.ajax({
             type:"post",
             url:"/room/ready",
@@ -209,7 +261,6 @@ $(function(){
 
 $(function(){
     $('#ready_cancel').bind('click', function () {
-        console.log("click")
         $.ajax({
             type:"post",
             url:"/room/ready/cancel",
@@ -229,7 +280,6 @@ $(function(){
 
 $(function(){
     $('#exit_room').bind('click', function () {
-        console.log("click")
         $.ajax({
             type:"post",
             url:"/room/exit",
@@ -241,6 +291,25 @@ $(function(){
             success:function (result) {
                 if (checkTFPResult(result)) {
                     init()
+                    tfp()
+                }
+            }
+        });
+    });
+})
+
+$(function(){
+    $('#donated_btn').bind('click', function () {
+        $.ajax({
+            type:"post",
+            url:"/game/donated",
+            data:JSON.stringify({"user_id": getUserId(), "round_no": Number(roundInfo["round_no"]), "player_id": playerId, "donated": Number($("#donated_money").val())}),
+            dataType:"json",
+            cache:false,
+            async:true,
+            contentType: "application/json",
+            success:function (result) {
+                if (checkTFPResult(result)) {
                     tfp()
                 }
             }
