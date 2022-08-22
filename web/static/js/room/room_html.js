@@ -48,6 +48,13 @@ notReadyTemplate = `
   未准备
 </span>
 `
+lineExampleTemplate = `
+<div class="flex items-center">
+    <span class="inline-block w-3 h-3 mr-10 rounded-full" style="{0}"></span>
+    <span>{1}</span>
+</div>
+`
+
 String.prototype.signMix= function() {
     if(arguments.length === 0) return this;
     var param = arguments[0], str= this;

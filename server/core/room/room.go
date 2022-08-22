@@ -144,13 +144,6 @@ func (r *Room) GameEnd() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.Status = GameEnded
-	userCurrentRoomIdMap.Range(func(key, value interface{}) bool {
-		if value.(string) == r.RoomId {
-			// sync.Map的遍历删除是完备的，不必担心。
-			userCurrentRoomIdMap.Delete(key)
-		}
-		return true
-	})
 	gameRoomPool.gamingToEnded(r)
 }
 
