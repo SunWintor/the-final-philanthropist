@@ -34,8 +34,36 @@ func (p *Process) ToGameInfoReply(userId int64) *model.GameInfo {
 	}
 }
 
+func (p *Process) emptyRoundHistoryReply() *model.RoundHistory {
+	var roundPlayerInfo []*model.RoundDonatedInfo
+	for _, player := range p.ProcessContext.PlayerMap {
+		heroName := ""
+		limitMoney := int64(0)
+		if player.Hero != nil {
+			heroName = player.Hero.GetName()
+			limitMoney = player.Hero.GetMoneyLimit()
+		}
+		empty := &model.RoundDonatedInfo{
+			PlayerId:        player.PlayerId,
+			Username:        player.Username,
+			HeroName:        heroName,
+			CurrentMoney:    limitMoney, // 这里没有赋值错误，就是要展示玩家的初始值，因为这个empty是展示在图标首部的
+			DonatedMoney:    0,
+			PunishmentMoney: 0,
+			Bankrupt:        false,
+		}
+		roundPlayerInfo = append(roundPlayerInfo, empty)
+	}
+	return &model.RoundHistory{
+		RoundNo:              0,
+		RoundDonatedInfoList: roundPlayerInfo,
+	}
+}
+
 func (p *Process) toRoundHistoryReplyList() []*model.RoundHistory {
 	var res []*model.RoundHistory
+	// 前端展示的图表的第一行数据
+	res = append(res, p.emptyRoundHistoryReply())
 	for _, roundHistory := range p.ProcessContext.RoundHistory {
 		res = append(res, roundHistory.ToReply())
 	}

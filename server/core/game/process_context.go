@@ -31,8 +31,12 @@ func (p *ProcessContext) initCurrentRound() {
 		hero := player.Hero
 		var currentMoney, moneyLimit int64
 		var heroName string
+		defaultMoney := p.CurrentRoundInfo.defaultDonatedMoney()
 		if hero != nil {
 			currentMoney, moneyLimit, heroName = hero.GetCurrentMoney(), hero.GetMoneyLimit(), hero.GetName()
+			if currentMoney < defaultMoney {
+				defaultMoney = currentMoney
+			}
 		}
 		p.CurrentRoundInfo.DonatedInfoList = append(p.CurrentRoundInfo.DonatedInfoList, &DonatedInfo{
 			PlayerId:        playerId,
@@ -40,9 +44,9 @@ func (p *ProcessContext) initCurrentRound() {
 			CurrentMoney:    currentMoney,
 			HeroName:        heroName,
 			MoneyLimit:      moneyLimit,
-			DonatedMoney:    p.CurrentRoundInfo.defaultDonatedMoney(), // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
-			PunishmentMoney: 0,                                        // 显式声明，表示全部字段都处理过了
-			Bankrupt:        false,                                    // 同上
+			DonatedMoney:    defaultMoney, // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
+			PunishmentMoney: 0,            // 显式声明，表示全部字段都处理过了
+			Bankrupt:        false,        // 同上
 		})
 	}
 }
@@ -98,6 +102,7 @@ func (p *ProcessContext) judgementGameEnd() {
 		lifePlayerCount++
 	}
 	if lifePlayerCount <= 1 {
+		p.roundToHistory()
 		close(p.EndGame)
 	}
 }

@@ -23,7 +23,7 @@ init = function() {
     gameId = ""
     playerId = ""
     roomStatus = 0
-    playerList = new Map();
+    playerList = []
     roundInfo = {}
     chartsLabels = []
     moneyDatasets = []
@@ -32,7 +32,6 @@ init = function() {
 }
 
 tfp = function() {
-    console.log("run")
     switch (roomStatus) {
         case 0:
         case 1:
@@ -158,27 +157,29 @@ function syncGameInfo(result) {
 }
 
 function syncCharts(result) {
-    playerDonatedMoneyMap = new Map()
+    playerMoneyMap = new Map()
     playerHistoryMap = new Map()
-    color = 0
+    index = 0
     for (let roomUser of playerList) {
         tempMoney = {
             label: roomUser.username,
-            backgroundColor: colorList[color],
-            borderColor: colorList[color],
+            backgroundColor: colorList[index],
+            borderColor: colorList[index],
             data: [],
             fill: false,
+            index: index,
         }
         tempHistory = {
             label: roomUser.username,
-            backgroundColor: colorList[color],
-            borderColor: colorList[color],
+            backgroundColor: colorList[index],
+            borderColor: colorList[index],
             data: [],
             fill: false,
+            index: index,
         }
-        playerDonatedMoneyMap[roomUser.username] = tempMoney
+        playerMoneyMap[roomUser.username] = tempMoney
         playerHistoryMap[roomUser.username] = tempHistory
-        color++
+        index++
     }
     chartsLabels = []
     if (result["data"]["game_info"]["round_history_list"] == null) {
@@ -187,8 +188,8 @@ function syncCharts(result) {
     for (let history of result["data"]["game_info"]["round_history_list"]) {
         chartsLabels.push(history["round_no"])
         for (let donatedInfo of history["round_donated_info_list"]) {
-            playerDonatedMoneyMap[donatedInfo.username].data.push(Number(donatedInfo.donated_money))
-            playerHistoryMap[donatedInfo.username].data.push(Number(donatedInfo.current_money))
+            playerMoneyMap[donatedInfo.username].data.push(Number(donatedInfo.current_money))
+            playerHistoryMap[donatedInfo.username].data.push(Number(donatedInfo.donated_money))
         }
     }
 }
