@@ -50,7 +50,7 @@ notReadyTemplate = `
 `
 lineExampleTemplate = `
 <div class="flex items-center">
-    <span class="inline-block w-3 h-3 mr-10 rounded-full" style="{0}"></span>
+    <span class="inline-block w-3 h-3 mr-10 rounded-full" style="background-color:{0}"></span>
     <span>{1}</span>
 </div>
 `
