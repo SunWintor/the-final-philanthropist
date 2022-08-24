@@ -1,0 +1,26 @@
+package controller
+
+import (
+	"net/http"
+
+	"github.com/SunWintor/tfp/server/service"
+
+	"github.com/gin-gonic/gin"
+)
+
+var svr *service.Service
+
+func Handle(r *gin.Engine) *gin.Engine {
+	svr = service.New()
+
+	handleHtml(r)
+	handleHome(r)
+	handleAuth(r)
+	handleRoom(r)
+	handleGame(r)
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.String(http.StatusOK, "pong")
+	})
+	return r
+}
