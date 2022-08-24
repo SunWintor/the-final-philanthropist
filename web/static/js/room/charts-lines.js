@@ -10,8 +10,19 @@ function initDatasets(map) {
   return datasets
 }
 
+function initExampleTemplate() {
+  exp = ""
+  $.each(playerHistoryMap,function(key,value) {
+    exp += lineExampleTemplate.signMix(value.backgroundColor, key)
+    console.log(exp)
+  });
+  $('#donated_history_exp').html(exp)
+  $('#money_history_exp').html(exp)
+}
+
 function initLine() {
   if (Object.keys(playerHistoryMap).length > 0 && historyLine == null) {
+    initExampleTemplate()
     historyConfig = {
       type: 'line',
       data: {

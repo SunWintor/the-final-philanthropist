@@ -65,8 +65,13 @@ func (s *Service) ExitRoom(c *gin.Context, arg *model.UserIdReq) (err error) {
 	if err != nil {
 		return
 	}
+	if r == nil {
+		err = ecode.RoomNotExistsError
+		return
+	}
 	if r.Status == room.Gaming {
 		err = ecode.GamingError
+		return
 	}
 	err = r.Exit(arg.UserId)
 	return

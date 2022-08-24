@@ -281,6 +281,10 @@ $(function(){
 
 $(function(){
     $('#exit_room').bind('click', function () {
+        if (roomStatus === 2) {
+            showErrorDialog("游戏进行中")
+            return
+        }
         $.ajax({
             type:"post",
             url:"/room/exit",

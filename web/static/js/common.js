@@ -35,6 +35,9 @@ checkTFPResult = function(result, showDialog = true) {
         showErrorDialog(result["msg"])
         return false
     }
+    if (result["code"] == -101) {
+        logout()
+    }
 }
 
 var m_DialogGroup = [],
