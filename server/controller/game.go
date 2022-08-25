@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func handleGame(r *gin.Engine) {
+func handleGame(r *gin.RouterGroup) {
 	home := r.Group("/game", filter.JWTAuthHandler(), filter.EqualUltraViresHandler())
 
 	home.GET("/info", gameInfo)

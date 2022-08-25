@@ -18,5 +18,5 @@ func setupRouter() *gin.Engine {
 func main() {
 	flag.Parse()
 	r := setupRouter()
-	r.Run(":8080")
+	r.Run(":9000")
 }

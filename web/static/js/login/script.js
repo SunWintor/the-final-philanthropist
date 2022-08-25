@@ -12,7 +12,7 @@ $(function (){
     pwd = $("#login_pwd").val()
     $.ajax({
       type:"post",    // 请求类型
-      url:"/auth/login",    // 请求URL
+      url:"/game/tfp/auth/login",    // 请求URL
       data:JSON.stringify({"username": uname, "password": pwd}),    // 请求参数 即是 在Servlet中 request.getParement();可以得到的字符串
       dataType:"json",    // 数据返回类型
       cache:false, // 是否缓存
@@ -22,7 +22,7 @@ $(function (){
         console.log(JSON.stringify(result))
         if (result["code"] == 0) {
           setTFPLoginCookies(result["data"])
-          $(location).attr('href', '/room');
+          $(location).attr('href', '/game/tfp/room');
         }
         $("#login_msg").text(JSON.stringify(result["msg"]));
       }
@@ -40,7 +40,7 @@ $(function (){
     }
     $.ajax({
       type:"post",    // 请求类型
-      url:"/auth/register",    // 请求URL
+      url:"/game/tfp/auth/register",    // 请求URL
       data:JSON.stringify({"username": uname, "password": pwd}),    // 请求参数 即是 在Servlet中 request.getParement();可以得到的字符串
       dataType:"json",    // 数据返回类型
       cache:false, // 是否缓存
@@ -50,7 +50,7 @@ $(function (){
         console.log(JSON.stringify(result))
         if (result["code"] == 0) {
           setTFPLoginCookies(result["data"])
-          $(location).attr('href', '/room');
+          $(location).attr('href', '/game/tfp/room');
         }
         $("#reg_msg").text(JSON.stringify(result["msg"]));
       }
@@ -60,5 +60,5 @@ $(function (){
 
 token = $.cookie('x-Token')
 if (token) {
-  $(location).attr('href', '/room');
+  $(location).attr('href', '/game/tfp/room');
 }

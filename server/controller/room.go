@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func handleRoom(r *gin.Engine) {
+func handleRoom(r *gin.RouterGroup) {
 	room := r.Group("/room", filter.JWTAuthHandler())
 
 	room.POST("/join/random", joinRandomRoom, filter.EqualUltraViresHandler())
