@@ -12,12 +12,13 @@ var svr *service.Service
 
 func Handle(r *gin.Engine) *gin.Engine {
 	svr = service.New()
-
-	handleHtml(r)
-	handleHome(r)
-	handleAuth(r)
-	handleRoom(r)
-	handleGame(r)
+	g := r.Group("/game/tfp/")
+	r.LoadHTMLGlob("web/templates/*")
+	handleHtml(g)
+	handleHome(g)
+	handleAuth(g)
+	handleRoom(g)
+	handleGame(g)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
