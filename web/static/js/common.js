@@ -3,7 +3,7 @@ getToken = function() {
     token = $.cookie('x-Token')
     console.log(token)
     if (!token) {
-        $(location).attr('href', '/login');
+        $(location).attr('href', '/game/tfp/login');
     }
     return token
 }
@@ -11,7 +11,7 @@ getToken = function() {
 getUserId = function() {
     userId = $.cookie('user_id')
     if (!userId) {
-        $(location).attr('href', '/login');
+        $(location).attr('href', '/game/tfp/login');
     }
     return Number(userId)
 }
@@ -22,9 +22,9 @@ setTFPLoginCookies = function (userInfo) {
 }
 
 logout = function() {
-    $.removeCookie('x-Token', { path: '/' });
-    $.removeCookie('user_id', { path: '/' });
-    $(location).attr('href', '/login');
+    $.removeCookie('x-Token', { path: '/game/tfp' });
+    $.removeCookie('user_id', { path: '/game/tfp' });
+    $(location).attr('href', '/game/tfp/login');
 }
 
 checkTFPResult = function(result, showDialog = true) {

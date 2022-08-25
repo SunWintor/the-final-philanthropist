@@ -72,7 +72,7 @@ flushPlayer = function() {
         punishment_money = roomUser.punishment_money?roomUser.punishment_money:0
         donated_money = roomUser.donated_money?roomUser.donated_money:0
         donated_money = donated_money >=0?donated_money:"-"
-        html += userTemplate.signMix("/static/image/room/silenthouse-black.png", roomUser.username,
+        html += userTemplate.signMix("/game/tfp/static/image/room/silenthouse-black.png", roomUser.username,
             hero_name, current_money, statusMap[playerStatus], donated_money, punishment_money)
     }
     $('#player_list').html(html)
@@ -115,7 +115,7 @@ flushTime = function () {
 getGameInfo = function() {
     $.ajax({
         type:"get",
-        url:"/game/info?user_id=" + getUserId(),
+        url:"/game/tfp/game/info?user_id=" + getUserId(),
         dataType:"json",
         cache:false,
         async:true,
@@ -218,7 +218,7 @@ function syncRoomInfo(result) {
 getRoomInfo = function() {
     $.ajax({
         type:"get",
-        url:"/room/info?user_id=" + getUserId(),
+        url:"/game/tfp/room/info?user_id=" + getUserId(),
         dataType:"json",
         cache:false,
         async:true,
@@ -230,7 +230,7 @@ $(function(){
     $('#game_start').bind('click', function () {
         $.ajax({
             type:"post",
-            url:"/room/join/random",
+            url:"/game/tfp/room/join/random",
             data:JSON.stringify({"user_id": getUserId()}),
             dataType:"json",
             cache:false,
@@ -245,7 +245,7 @@ $(function(){
     $('#ready').bind('click', function () {
         $.ajax({
             type:"post",
-            url:"/room/ready",
+            url:"/game/tfp/room/ready",
             data:JSON.stringify({"user_id": getUserId()}),
             dataType:"json",
             cache:false,
@@ -264,7 +264,7 @@ $(function(){
     $('#ready_cancel').bind('click', function () {
         $.ajax({
             type:"post",
-            url:"/room/ready/cancel",
+            url:"/game/tfp/room/ready/cancel",
             data:JSON.stringify({"user_id": getUserId()}),
             dataType:"json",
             cache:false,
@@ -287,7 +287,7 @@ $(function(){
         }
         $.ajax({
             type:"post",
-            url:"/room/exit",
+            url:"/game/tfp/room/exit",
             data:JSON.stringify({"user_id": getUserId()}),
             dataType:"json",
             cache:false,
@@ -307,7 +307,7 @@ $(function(){
     $('#donated_btn').bind('click', function () {
         $.ajax({
             type:"post",
-            url:"/game/donated",
+            url:"/game/tfp/game/donated",
             data:JSON.stringify({"user_id": getUserId(), "round_no": Number(roundInfo["round_no"]), "player_id": playerId, "donated": Number($("#donated_money").val())}),
             dataType:"json",
             cache:false,
