@@ -28,6 +28,9 @@ init = function() {
     chartsLabels = []
     moneyDatasets = []
     historyDatasets = []
+    chartsLabels = []
+    playerMoneyMap = new Map()
+    playerHistoryMap = new Map()
     exampleHtml = ""
 }
 
