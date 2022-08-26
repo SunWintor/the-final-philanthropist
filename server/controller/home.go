@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func handleHome(r *gin.Engine) {
+func handleHome(r *gin.RouterGroup) {
 	home := r.Group("/home", filter.JWTAuthHandler())
 
 	home.GET("/info", homeInfo)

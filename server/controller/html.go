@@ -5,10 +5,9 @@ import (
 	"net/http"
 )
 
-func handleHtml(r *gin.Engine) {
+func handleHtml(r *gin.RouterGroup) {
 
 	r.Static("/static", "./web/static")
-	r.LoadHTMLGlob("web/templates/*")
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html", nil)
 	})
