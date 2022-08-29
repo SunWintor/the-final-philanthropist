@@ -1,4 +1,4 @@
-stageMap = {"-2":"未加入房间", "-1":"游戏未开始", "0":"游戏开始", "1":"回合开始", "2":"捐赠", "3":"捐赠结束", "4":"舆论惩罚", "5":"破产判定", "6":"游戏结束"}
+stageMap = {"-2":"未加入房间", "-1":"游戏未开始", "0":"游戏开始", "1":"回合开始", "2":"捐赠", "3":"捐赠结束", "4":"舆论惩罚", "5":"破产判定", "99":"回合结束", "6":"游戏结束"}
 statusMap = {"0":notReadyTemplate, "1":readyTemplate, "2":lifeTemplate, "3":bankruptcyTemplate}
 colorList = ["#2563eb", "#eab308", "#dc2626", "#475569",
     "#fef9c3", "#f0abfc", "#0f172a", "#d6d3d1" ]
@@ -128,6 +128,109 @@ getGameInfo = function() {
 
 function syncGameInfo(result) {
     if (checkTFPResult(result, false)) {
+        //{
+        //     "code": 0,
+        //     "data": {
+        //         "game_id": "G27030432153551",
+        //         "room_id": "R27030448779410",
+        //         "status": 2,
+        //         "game_info": {
+        //             "round_info": {
+        //                 "round_no": 3,
+        //                 "public_opinion": 5,
+        //                 "stage": {
+        //                     "stage": 2,
+        //                     "start_time": 1661784762786,
+        //                     "name": "捐赠阶段",
+        //                     "duration": 20
+        //                 },
+        //                 "player_info_list": [
+        //                     {
+        //                         "player_id": "P27030440145821",
+        //                         "username": "2",
+        //                         "hero_name": "富二代",
+        //                         "current_money": 90,
+        //                         "donated_money": 7,
+        //                         "punishment_money": 0,
+        //                         "bankrupt": false
+        //                     },
+        //                     {
+        //                         "player_id": "P27030440010051",
+        //                         "username": "1",
+        //                         "hero_name": "富二代",
+        //                         "current_money": 90,
+        //                         "donated_money": -1,
+        //                         "punishment_money": 0,
+        //                         "bankrupt": false
+        //                     }
+        //                 ]
+        //             },
+        //             "player_game_info": {
+        //                 "player_id": "P27030440145821",
+        //                 "username": "2",
+        //                 "hero_info": {
+        //                     "money_limit": 108,
+        //                     "current_money": 90,
+        //                     "name": "富二代",
+        //                     "skill_info": "胜利后变成富一代。"
+        //                 }
+        //             },
+        //             "round_history_list": [
+        //                 {
+        //                     "player_id": "P27030440145821",
+        //                     "username": "2",
+        //                     "hero_name": "富二代",
+        //                     "current_money_list": [
+        //                         108,
+        //                         100,
+        //                         90
+        //                     ],
+        //                     "donated_money_list": [
+        //                         0,
+        //                         5,
+        //                         6
+        //                     ],
+        //                     "punishment_money_list": [
+        //                         0,
+        //                         3,
+        //                         4
+        //                     ],
+        //                     "bankrupt_list": [
+        //                         false,
+        //                         false,
+        //                         false
+        //                     ]
+        //                 },
+        //                 {
+        //                     "player_id": "P27030440010051",
+        //                     "username": "1",
+        //                     "hero_name": "富二代",
+        //                     "current_money_list": [
+        //                         108,
+        //                         100,
+        //                         90
+        //                     ],
+        //                     "donated_money_list": [
+        //                         0,
+        //                         5,
+        //                         6
+        //                     ],
+        //                     "punishment_money_list": [
+        //                         0,
+        //                         3,
+        //                         4
+        //                     ],
+        //                     "bankrupt_list": [
+        //                         false,
+        //                         false,
+        //                         false
+        //                     ]
+        //                 }
+        //             ]
+        //         }
+        //     },
+        //     "msg": ""
+        // }
         gameId = result["data"]["game_id"]
         roomId = result["data"]["room_id"]
         roomStatus = Number(result["data"]["status"])

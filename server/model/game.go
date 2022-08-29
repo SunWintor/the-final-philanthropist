@@ -19,9 +19,9 @@ type GameInfoReply struct {
 }
 
 type GameInfo struct {
-	RoundInfo        *RoundInfo      `json:"round_info"`
-	PlayerGameInfo   *PlayerGameInfo `json:"player_game_info"`
-	RoundHistoryList []*RoundHistory `json:"round_history_list"`
+	RoundInfo        *RoundInfo          `json:"round_info"`
+	PlayerGameInfo   *PlayerGameInfo     `json:"player_game_info"`
+	RoundHistoryList []*RoundDonatedInfo `json:"round_history_list"`
 }
 
 type PlayerGameInfo struct {
@@ -30,12 +30,24 @@ type PlayerGameInfo struct {
 	HeroInfo *Hero  `json:"hero_info"`
 }
 
-type RoundHistory struct {
-	RoundNo              int64               `json:"round_no"`
-	RoundDonatedInfoList []*RoundDonatedInfo `json:"round_donated_info_list"`
+type RoundDonatedInfo struct {
+	PlayerId            string  `json:"player_id"`
+	Username            string  `json:"username"`
+	HeroName            string  `json:"hero_name"`
+	CurrentMoneyList    []int64 `json:"current_money_list"`
+	DonatedMoneyList    []int64 `json:"donated_money_list"`
+	PunishmentMoneyList []int64 `json:"punishment_money_list"`
+	BankruptList        []bool  `json:"bankrupt_list"`
 }
 
-type RoundDonatedInfo struct {
+type RoundInfo struct {
+	RoundNo        int64         `json:"round_no"`
+	PublicOpinion  int64         `json:"public_opinion"`
+	Stage          *Stage        `json:"stage"`
+	PlayerInfoList []*PlayerInfo `json:"player_info_list"`
+}
+
+type PlayerInfo struct {
 	PlayerId        string `json:"player_id"`
 	Username        string `json:"username"`
 	HeroName        string `json:"hero_name"`
@@ -43,13 +55,6 @@ type RoundDonatedInfo struct {
 	DonatedMoney    int64  `json:"donated_money"`
 	PunishmentMoney int64  `json:"punishment_money"`
 	Bankrupt        bool   `json:"bankrupt"`
-}
-
-type RoundInfo struct {
-	RoundNo          int64         `json:"round_no"`
-	PublicOpinion    int64         `json:"public_opinion"`
-	Stage            *Stage        `json:"stage"`
-	CurrentRoundInfo *RoundHistory `json:"current_round_info"`
 }
 
 type Stage struct {
