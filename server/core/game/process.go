@@ -3,6 +3,7 @@ package game
 import (
 	"github.com/SunWintor/tfp/server/model"
 	"log"
+	"sort"
 	"time"
 )
 
@@ -76,6 +77,9 @@ func (p *Process) toRoundHistoryReplyList() (res []*model.RoundDonatedInfo) {
 	for _, v := range replyMap {
 		res = append(res, v)
 	}
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].PlayerId < res[j].PlayerId
+	})
 	return
 }
 
@@ -114,5 +118,8 @@ func (p *Process) toPlayerInfoListReply(playerId string) []*model.PlayerInfo {
 		}
 		playerInfoList = append(playerInfoList, donatedInfoReply)
 	}
+	sort.Slice(playerInfoList, func(i, j int) bool {
+		return playerInfoList[i].PlayerId < playerInfoList[j].PlayerId
+	})
 	return playerInfoList
 }

@@ -10,11 +10,11 @@ playerId = ""
 roomStatus = 0
 //{player_id: '', user_id: 1, username: 'sdf', is_ready: false}
 playerList = [];
+playerHistoryList = []
 roundInfo = {}
 
-chartsLabels = []
-playerMoneyMap = new Map()
-playerHistoryMap = new Map()
+playerMoneyChartList = []
+playerHistoryChartList = []
 exampleHtml = ""
 
 init = function() {
@@ -25,13 +25,13 @@ init = function() {
     roomStatus = 0
     playerList = []
     roundInfo = {}
-    chartsLabels = []
     moneyDatasets = []
     historyDatasets = []
-    chartsLabels = []
-    playerMoneyMap = new Map()
-    playerHistoryMap = new Map()
+    playerHistoryList = []
+    playerMoneyChartList = []
+    playerHistoryChartList = []
     exampleHtml = ""
+    clearTfpChara()
 }
 
 tfp = function() {
@@ -72,9 +72,10 @@ flushPlayer = function() {
         username = roomUser.username?roomUser.username:"SILENT HOUSE"
         hero_name = roomUser.hero_name?roomUser.hero_name:"未选择英雄"
         current_money = roomUser.current_money?roomUser.current_money:0
-        punishment_money = roomUser.punishment_money?roomUser.punishment_money:0
+        punishment_money = roomUser.punishment_money?"<p style='color:red;font-weight: bold;'>" + roomUser.punishment_money + "</p>":0
         donated_money = roomUser.donated_money?roomUser.donated_money:0
         donated_money = donated_money >=0?donated_money:"-"
+        donated_money = "<p style='font-weight: bold;'>" + donated_money + "</p>"
         html += userTemplate.signMix("/game/tfp/static/image/room/silenthouse-black.png", roomUser.username,
             hero_name, current_money, statusMap[playerStatus], donated_money, punishment_money)
     }
@@ -128,109 +129,6 @@ getGameInfo = function() {
 
 function syncGameInfo(result) {
     if (checkTFPResult(result, false)) {
-        //{
-        //     "code": 0,
-        //     "data": {
-        //         "game_id": "G27030432153551",
-        //         "room_id": "R27030448779410",
-        //         "status": 2,
-        //         "game_info": {
-        //             "round_info": {
-        //                 "round_no": 3,
-        //                 "public_opinion": 5,
-        //                 "stage": {
-        //                     "stage": 2,
-        //                     "start_time": 1661784762786,
-        //                     "name": "捐赠阶段",
-        //                     "duration": 20
-        //                 },
-        //                 "player_info_list": [
-        //                     {
-        //                         "player_id": "P27030440145821",
-        //                         "username": "2",
-        //                         "hero_name": "富二代",
-        //                         "current_money": 90,
-        //                         "donated_money": 7,
-        //                         "punishment_money": 0,
-        //                         "bankrupt": false
-        //                     },
-        //                     {
-        //                         "player_id": "P27030440010051",
-        //                         "username": "1",
-        //                         "hero_name": "富二代",
-        //                         "current_money": 90,
-        //                         "donated_money": -1,
-        //                         "punishment_money": 0,
-        //                         "bankrupt": false
-        //                     }
-        //                 ]
-        //             },
-        //             "player_game_info": {
-        //                 "player_id": "P27030440145821",
-        //                 "username": "2",
-        //                 "hero_info": {
-        //                     "money_limit": 108,
-        //                     "current_money": 90,
-        //                     "name": "富二代",
-        //                     "skill_info": "胜利后变成富一代。"
-        //                 }
-        //             },
-        //             "round_history_list": [
-        //                 {
-        //                     "player_id": "P27030440145821",
-        //                     "username": "2",
-        //                     "hero_name": "富二代",
-        //                     "current_money_list": [
-        //                         108,
-        //                         100,
-        //                         90
-        //                     ],
-        //                     "donated_money_list": [
-        //                         0,
-        //                         5,
-        //                         6
-        //                     ],
-        //                     "punishment_money_list": [
-        //                         0,
-        //                         3,
-        //                         4
-        //                     ],
-        //                     "bankrupt_list": [
-        //                         false,
-        //                         false,
-        //                         false
-        //                     ]
-        //                 },
-        //                 {
-        //                     "player_id": "P27030440010051",
-        //                     "username": "1",
-        //                     "hero_name": "富二代",
-        //                     "current_money_list": [
-        //                         108,
-        //                         100,
-        //                         90
-        //                     ],
-        //                     "donated_money_list": [
-        //                         0,
-        //                         5,
-        //                         6
-        //                     ],
-        //                     "punishment_money_list": [
-        //                         0,
-        //                         3,
-        //                         4
-        //                     ],
-        //                     "bankrupt_list": [
-        //                         false,
-        //                         false,
-        //                         false
-        //                     ]
-        //                 }
-        //             ]
-        //         }
-        //     },
-        //     "msg": ""
-        // }
         gameId = result["data"]["game_id"]
         roomId = result["data"]["room_id"]
         roomStatus = Number(result["data"]["status"])
@@ -243,60 +141,57 @@ function syncGameInfo(result) {
         roundInfo["stage_end_time"] = startTimeUnix + durationUnix
 
         playerList = []
-        for (let roomUser of result["data"]["game_info"]["round_info"]["current_round_info"]["round_donated_info_list"]) {
+        for (let roomUser of result["data"]["game_info"]["round_info"]["player_info_list"]) {
             playerList.push({
                 player_id: roomUser.player_id,
-                user_id: roomUser.user_id,
                 username: roomUser.username,
                 hero_name: roomUser.hero_name,
-                is_ready: roomUser.is_ready,
                 current_money:roomUser.current_money,
                 donated_money:roomUser.donated_money,
                 punishment_money:roomUser.punishment_money,
                 bankrupt:roomUser.bankrupt,
             })
         }
-        playerList.sort(comparePlayer)
-        syncCharts(result)
+
+        playerHistoryList = []
+        for (let roomUser of result["data"]["game_info"]["round_history_list"]) {
+            playerHistoryList.push({
+                player_id: roomUser.player_id,
+                username: roomUser.username,
+                hero_name: roomUser.hero_name,
+                current_money_list:roomUser.current_money_list,
+                donated_money_list:roomUser.donated_money_list,
+                punishment_money_list:roomUser.punishment_money_list,
+                bankrupt_list:roomUser.bankrupt_list,
+            })
+        }
+        syncCharts()
         flushPage()
     }
 }
 
-function syncCharts(result) {
-    playerMoneyMap = new Map()
-    playerHistoryMap = new Map()
+function syncCharts() {
     index = 0
-    for (let roomUser of playerList) {
+    for (let player of playerHistoryList) {
         tempMoney = {
-            label: roomUser.username,
+            label: player.username,
             backgroundColor: colorList[index],
             borderColor: colorList[index],
-            data: [],
+            data: player.current_money_list,
             fill: false,
             index: index,
         }
         tempHistory = {
-            label: roomUser.username,
+            label: player.username,
             backgroundColor: colorList[index],
             borderColor: colorList[index],
-            data: [],
+            data: player.donated_money_list,
             fill: false,
             index: index,
         }
-        playerMoneyMap[roomUser.username] = tempMoney
-        playerHistoryMap[roomUser.username] = tempHistory
+        playerMoneyChartList.push(tempMoney)
+        playerHistoryChartList.push(tempHistory)
         index++
-    }
-    chartsLabels = []
-    if (result["data"]["game_info"]["round_history_list"] == null) {
-        return
-    }
-    for (let history of result["data"]["game_info"]["round_history_list"]) {
-        chartsLabels.push(history["round_no"])
-        for (let donatedInfo of history["round_donated_info_list"]) {
-            playerMoneyMap[donatedInfo.username].data.push(Number(donatedInfo.current_money))
-            playerHistoryMap[donatedInfo.username].data.push(Number(donatedInfo.donated_money))
-        }
     }
 }
 
