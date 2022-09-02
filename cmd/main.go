@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"github.com/SunWintor/tfp/configs"
 	"github.com/SunWintor/tfp/server/controller"
 	"github.com/gin-gonic/gin"
 	ginglog "github.com/szuecs/gin-glog"
@@ -18,5 +20,5 @@ func setupRouter() *gin.Engine {
 func main() {
 	flag.Parse()
 	r := setupRouter()
-	r.Run(":9000")
+	r.Run(fmt.Sprintf(":%s", configs.GetConf().TFPServerPort))
 }

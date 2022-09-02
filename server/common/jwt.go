@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/SunWintor/tfp/configs"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/golang-jwt/jwt/v4"
 	"time"
@@ -17,7 +18,7 @@ type TFPClaims struct {
 
 func NewJWT() *JWT {
 	return &JWT{
-		[]byte("global.GVA_CONFIG.JWT.SigningKey"),
+		[]byte(configs.GetConf().LoginSalt),
 	}
 }
 
