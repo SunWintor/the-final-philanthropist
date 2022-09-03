@@ -1,6 +1,11 @@
 package configs
 
-import "time"
+import (
+	"log"
+	"time"
+
+	"github.com/BurntSushi/toml"
+)
 
 var config Conf
 
@@ -18,9 +23,8 @@ type MysqlConf struct {
 }
 
 func LoadConf() {
-	config = Conf{
-		TFPServerPort: "9000",
-		LoginSalt:     "盐",
+	if _, err := toml.DecodeFile("./configs/conf.toml", &config); err != nil {
+		log.Fatalln(err)
 	}
 }
 

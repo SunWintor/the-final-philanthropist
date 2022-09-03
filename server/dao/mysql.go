@@ -2,8 +2,10 @@ package dao
 
 import (
 	"database/sql"
-	"github.com/SunWintor/tfp/configs"
 	"time"
+
+	"github.com/SunWintor/tfp/configs"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func (d *Dao) InitMysql() {
