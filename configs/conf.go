@@ -12,6 +12,7 @@ var config Conf
 type Conf struct {
 	TFPServerPort string
 	LoginSalt     string
+	JWTSalt       string
 	Mysql         *MysqlConf
 }
 

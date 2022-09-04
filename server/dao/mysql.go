@@ -20,4 +20,5 @@ func (d *Dao) InitMysql() {
 	db.SetMaxOpenConns(dbConf.MaxOpenConns)
 	// 空闲连接数
 	db.SetMaxIdleConns(dbConf.MaxIdleConns)
+	d.db = db
 }

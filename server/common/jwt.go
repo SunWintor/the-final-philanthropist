@@ -18,7 +18,7 @@ type TFPClaims struct {
 
 func NewJWT() *JWT {
 	return &JWT{
-		[]byte(configs.GetConf().LoginSalt),
+		[]byte(configs.GetConf().JWTSalt),
 	}
 }
 

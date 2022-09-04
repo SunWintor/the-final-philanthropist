@@ -1,11 +1,16 @@
 package service
 
 import (
+	"github.com/SunWintor/tfp/server/core/game"
 	"github.com/SunWintor/tfp/server/core/room"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
 )
+
+func (s *Service) GameEnd(c *gin.Context, game *game.Game) (err error) {
+	return err
+}
 
 func (s *Service) GameInfo(c *gin.Context, arg *model.GameInfoReq) (res *model.GameInfoReply, err error) {
 	var r *room.Room

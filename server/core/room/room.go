@@ -136,11 +136,11 @@ func (r *Room) gameInit() {
 	endChan := r.Game.Start()
 	go func() {
 		<-endChan
-		r.GameEnd()
+		r.gameEnd()
 	}()
 }
 
-func (r *Room) GameEnd() {
+func (r *Room) gameEnd() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.Status = GameEnded

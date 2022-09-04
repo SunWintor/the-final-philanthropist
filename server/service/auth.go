@@ -7,6 +7,7 @@ import (
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 // Register fixme 当前版本，如果并发去注册同一个账号，会出问题。
@@ -14,30 +15,35 @@ import (
 func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (res *model.UserInfoReply, err error) {
 	userInfo := new(model.UserInfo)
 	res = new(model.UserInfoReply)
-	if _, ok := user.GetCopyByName(arg.Username); ok {
+	if userInfo, err = s.GetUserByUsername(c, arg.Username); err != nil {
+		return
+	}
+	if userInfo != nil || userInfo.Id > 0 {
 		err = ecode.AccountAlreadyRegError
 		return
 	}
 	j := common.NewJWT()
-	cl := j.CreateClaims(arg.Username + ":" + arg.Password)
-	var token string
-	if token, err = j.CreateToken(cl); err != nil {
+	if userInfo.Token, err = j.CreateToken(j.CreateClaims(arg.Username + ":" + arg.Password)); err != nil {
 		return
 	}
-	userInfo.Id = common.GetNextUserId()
 	userInfo.Username = arg.Username
 	userInfo.Password = arg.Password
-	userInfo.Token = token
-	user.Put(userInfo)
+	if err = s.CreateUser(c, userInfo); err != nil {
+		err = errors.WithStack(err)
+		return
+	}
 	res = userInfo.ToReply()
 	return
 }
 
 func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInfoReply, err error) {
-	var ok bool
 	var userInfo *model.UserInfo
 	res = new(model.UserInfoReply)
-	if userInfo, ok = user.GetCopyByName(arg.Username); !ok {
+
+	if userInfo, err = s.GetUserByUsername(c, arg.Username); err != nil {
+		return
+	}
+	if userInfo == nil || userInfo.Id < 0 {
 		err = ecode.AccountNotExistsError
 		return
 	}
@@ -45,7 +51,15 @@ func (s *Service) Login(c *gin.Context, arg *model.LoginReq) (res *model.UserInf
 		err = ecode.PasswordError
 		return
 	}
+	j := common.NewJWT()
+	if userInfo.Token, err = j.CreateToken(j.CreateClaims(arg.Username + ":" + arg.Password)); err != nil {
+		return
+	}
+	if err = s.dao.UpdateToken(c, userInfo.Id, userInfo.Token); err != nil {
+		return
+	}
 	_, err = filter.JWTAuth(userInfo.Token)
+	user.Put(userInfo)
 	res = userInfo.ToReply()
 	return
 }

@@ -3,7 +3,6 @@ CREATE TABLE `tfp_user` (
                             `username` varchar(16) NOT NULL DEFAULT '' COMMENT '用户名',
                             `password` varchar(32) NOT NULL DEFAULT '' COMMENT '密码',
                             `token` varchar(255) NOT NULL DEFAULT '' COMMENT '用户鉴权用的token',
-                            `ver` int(11) NOT NULL COMMENT '版本号，用于幂等',
                             `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT '创建时间',
                             `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                             PRIMARY KEY (`id`),
