@@ -11,9 +11,9 @@ import (
 
 var svr *service.Service
 
-func Handle(r *gin.Engine) *gin.Engine {
+func Handle(r *gin.Engine, s *service.Service) *gin.Engine {
 	configs.LoadConf()
-	svr = service.New()
+	svr = s
 	g := r.Group("/game/tfp/")
 	r.LoadHTMLGlob("web/templates/*")
 	handleHtml(g)

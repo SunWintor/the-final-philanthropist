@@ -11,5 +11,5 @@ type donated struct {
 func (g *donated) templateInit() {
 	g.stage = DonatedStage
 	g.stageName = "捐赠阶段"
-	g.duration = 20 * time.Second
+	g.duration = 60 * time.Second
 }

@@ -8,8 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Service) GameEnd(c *gin.Context, game *game.Game) (err error) {
-	return err
+func (s *Service) GameEnd(c *gin.Context, game *game.Game) {
+	// todo 保存玩家的rank信息
+
+	return
 }
 
 func (s *Service) GameInfo(c *gin.Context, arg *model.GameInfoReq) (res *model.GameInfoReply, err error) {

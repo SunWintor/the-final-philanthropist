@@ -5,6 +5,8 @@ import (
 	"github.com/SunWintor/tfp/server/core/game"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
+	"github.com/SunWintor/tfp/server/service"
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"sync"
 )
@@ -30,9 +32,11 @@ const (
 // key userId
 // value roomId
 var userCurrentRoomIdMap sync.Map
+var svr *service.Service
 
-func init() {
+func Init(s *service.Service) {
 	userCurrentRoomIdMap = sync.Map{}
+	svr = s
 }
 
 func generateReadyRoom() *Room {
@@ -136,6 +140,7 @@ func (r *Room) gameInit() {
 	endChan := r.Game.Start()
 	go func() {
 		<-endChan
+		svr.GameEnd(&gin.Context{}, r.Game)
 		r.gameEnd()
 	}()
 }
