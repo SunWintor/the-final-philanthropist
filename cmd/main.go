@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/SunWintor/tfp/server/core/room"
 	"time"
 
 	"github.com/SunWintor/tfp/configs"
@@ -14,8 +13,8 @@ import (
 )
 
 func setupRouter() *gin.Engine {
+	configs.LoadConf()
 	s := service.New()
-	room.Init(s)
 	r := gin.New()
 	r.Use(ginglog.Logger(3 * time.Second))
 	r.Use(gin.Recovery())

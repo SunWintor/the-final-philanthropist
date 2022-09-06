@@ -17,8 +17,6 @@ func handleRoom(r *gin.RouterGroup) {
 	room.POST("/ready/cancel", readyCancel, filter.EqualUltraViresHandler())
 
 	room.GET("/info", roomInfo)
-
-	room.GET("/game/info", roomGameInfoSocket)
 }
 
 func ready(c *gin.Context) {
@@ -69,8 +67,4 @@ func roomInfo(c *gin.Context) {
 	}
 	info, err := svr.RoomInfo(c, r)
 	gin_util.AutoResult(c, info, err)
-}
-
-func roomGameInfoSocket(c *gin.Context) {
-	svr.RoomGameInfoSocket(c)
 }

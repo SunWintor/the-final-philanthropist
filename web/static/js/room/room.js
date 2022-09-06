@@ -35,6 +35,7 @@ init = function() {
 }
 
 tfp = function() {
+    console.time("a")
     switch (roomStatus) {
         case 0:
         case 1:
@@ -46,6 +47,7 @@ tfp = function() {
         case 3:
     }
     flushPage()
+    console.timeEnd("a")
 }
 
 flushPage = function() {

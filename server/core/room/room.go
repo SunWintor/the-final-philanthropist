@@ -5,8 +5,6 @@ import (
 	"github.com/SunWintor/tfp/server/core/game"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
-	"github.com/SunWintor/tfp/server/service"
-	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"sync"
 )
@@ -32,11 +30,9 @@ const (
 // key userId
 // value roomId
 var userCurrentRoomIdMap sync.Map
-var svr *service.Service
 
-func Init(s *service.Service) {
+func init() {
 	userCurrentRoomIdMap = sync.Map{}
-	svr = s
 }
 
 func generateReadyRoom() *Room {
@@ -109,24 +105,24 @@ func (r *Room) Exit(userId int64) error {
 	return nil
 }
 
-func (r *Room) GameStart() error {
+func (r *Room) GameStart() (endChan <-chan struct{}, err error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if len(r.userMap) < 2 {
-		return ecode.InsufficientPlayerError
+		return nil, ecode.InsufficientPlayerError
 	}
 	for _, roomUser := range r.userMap {
 		if !roomUser.IsReady {
-			return ecode.PlayerNotReadyError
+			return nil, ecode.PlayerNotReadyError
 		}
 	}
-	r.gameInit()
+	endChan = r.gameInit()
 	r.Status = Gaming
 	gameRoomPool.readyToGaming(r)
-	return nil
+	return endChan, nil
 }
 
-func (r *Room) gameInit() {
+func (r *Room) gameInit() <-chan struct{} {
 	r.Game = &game.Game{
 		GameId: common.GetRandomGameId(),
 		RoomId: r.RoomId,
@@ -140,9 +136,9 @@ func (r *Room) gameInit() {
 	endChan := r.Game.Start()
 	go func() {
 		<-endChan
-		svr.GameEnd(&gin.Context{}, r.Game)
 		r.gameEnd()
 	}()
+	return endChan
 }
 
 func (r *Room) gameEnd() {

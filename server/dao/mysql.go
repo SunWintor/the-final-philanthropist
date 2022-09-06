@@ -22,3 +22,7 @@ func (d *Dao) InitMysql() {
 	db.SetMaxIdleConns(dbConf.MaxIdleConns)
 	d.db = db
 }
+
+func (d *Dao) TxStartFunc() {
+
+}

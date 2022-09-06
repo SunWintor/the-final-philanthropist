@@ -12,8 +12,16 @@ func (s *Service) Ready(c *gin.Context, arg *model.UserIdReq) (err error) {
 	if r, err = changeUserReadyStatus(arg.UserId, true); err != nil {
 		return
 	}
-	// 在玩家点击准备按钮的时候，游戏开始失败不需要通知玩家。
-	r.GameStart()
+	var endChan <-chan struct{}
+	if endChan, err = r.GameStart(); err != nil {
+		// 在玩家点击准备按钮的时候，游戏开始失败不需要通知玩家。
+		err = nil
+		return
+	}
+	go func() {
+		<-endChan
+		s.GameEnd(&gin.Context{}, r.Game)
+	}()
 	return
 }
 

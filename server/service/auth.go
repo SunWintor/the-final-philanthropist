@@ -18,7 +18,7 @@ func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (res *model.U
 	if userInfo, err = s.GetUserByUsername(c, arg.Username); err != nil {
 		return
 	}
-	if userInfo != nil || userInfo.Id > 0 {
+	if userInfo != nil && userInfo.Id > 0 {
 		err = ecode.AccountAlreadyRegError
 		return
 	}
