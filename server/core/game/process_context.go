@@ -1,11 +1,14 @@
 package game
 
+import "sort"
+
 type ProcessContext struct {
 	Round            int64
 	PlayerMap        map[string]*Player // 该map初始化后便不会变动，所以无需加锁便可操作。
 	CurrentRoundInfo *RoundInfo
 	RoundHistory     []*RoundInfo
 	EndGame          chan struct{}
+	RichPlayerCount  int64
 }
 
 const (
@@ -77,19 +80,36 @@ func (p *ProcessContext) decPlayerMoney(money int64, donatedInfo *DonatedInfo) {
 	return
 }
 
+func (p *ProcessContext) rankSettlement() {
+	var roundBankruptPlayer []*Player
+	for _, player := range p.PlayerMap {
+		if !player.Hero.IsBankrupt() {
+			continue
+		}
+		if player.BankruptRound == 0 {
+			player.BankruptRound = p.Round
+			roundBankruptPlayer = append(roundBankruptPlayer, player)
+		}
+	}
+	if len(roundBankruptPlayer) == 0 {
+		return
+	}
+	sort.Slice(roundBankruptPlayer, func(i, j int) bool {
+		return roundBankruptPlayer[i].Hero.GetCurrentMoney() < roundBankruptPlayer[j].Hero.GetCurrentMoney()
+	})
+	for _, player := range roundBankruptPlayer {
+		player.RoomRank = p.RichPlayerCount
+		p.RichPlayerCount--
+	}
+}
+
 func (p *ProcessContext) roundToHistory() {
 	p.RoundHistory = append(p.RoundHistory, p.CurrentRoundInfo)
 }
 
 func (p *ProcessContext) judgementGameEnd() {
-	lifePlayerCount := 0
-	for _, player := range p.PlayerMap {
-		if player.Hero.IsBankrupt() {
-			continue
-		}
-		lifePlayerCount++
-	}
-	if lifePlayerCount <= 1 {
+	p.rankSettlement()
+	if p.RichPlayerCount <= 1 {
 		p.roundToHistory()
 		close(p.EndGame)
 	}

@@ -62,6 +62,9 @@ func (g *RoundInfo) donated(playerId string, donated int64) error {
 		if donatedInfo.CurrentMoney < donated {
 			donatedInfo.DonatedMoney = donatedInfo.CurrentMoney
 		}
+		if donatedInfo.DonatedMoney < 0 {
+			donatedInfo.DonatedMoney = 0
+		}
 		return nil
 	}
 	return ecode.PlayerNotExistsError

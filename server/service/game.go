@@ -1,27 +1,25 @@
 package service
 
 import (
-	"fmt"
 	"github.com/SunWintor/tfp/server/core/game"
 	"github.com/SunWintor/tfp/server/core/room"
 	"github.com/SunWintor/tfp/server/ecode"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
-	"sort"
+	"log"
+	"time"
 )
 
+// 不返回错误是因为返回了也没有什么用，目前对于该方面的可靠性要求还没有那么高，所以可以这样么干，但要知道这里是有问题的。
 func (s *Service) GameEnd(c *gin.Context, g *game.Game) {
 	// todo 保存玩家的rank信息
-	m := g.Process.ProcessContext.PlayerMap
-	var playerList []*game.Player
-	for _, v := range m {
-		playerList = append(playerList, v)
-	}
-	sort.Slice(playerList, func(i, j int) bool {
-		return playerList[i].Hero.GetCurrentMoney() > playerList[j].Hero.GetCurrentMoney()
-	})
-	for _, v := range playerList {
-		fmt.Printf("%+v\n", v.Hero)
+	for i := 0; i < 5; i++ {
+		if err := s.GameRankSettlement(c, g.Process.ProcessContext.PlayerMap); err != nil {
+			log.Printf("GameRankSettlement err %+v %+v", g, err)
+			time.Sleep(time.Second * time.Duration(i+1))
+			continue
+		}
+		break
 	}
 	return
 }
