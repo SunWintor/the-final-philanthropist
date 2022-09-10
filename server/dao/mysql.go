@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"context"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"time"
@@ -26,7 +27,7 @@ func (d *Dao) InitMysql() {
 
 func (d *Dao) TxStartFunc(ctx *gin.Context, tx *sql.Tx, f func(tx *sql.Tx) error) (err error) {
 	if tx == nil {
-		tx, err = d.db.BeginTx(ctx, nil)
+		tx, err = d.db.BeginTx(context.Background(), nil)
 	}
 	defer func() {
 		if err != nil {

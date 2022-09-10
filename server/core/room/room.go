@@ -24,7 +24,6 @@ const (
 const (
 	GameReady = int64(iota) + 1
 	Gaming
-	GameEnded
 )
 
 // key userId
@@ -102,6 +101,9 @@ func (r *Room) Exit(userId int64) error {
 	delete(r.userMap, roomUser.UserId)
 	roomUser.RoomId = ""
 	userCurrentRoomIdMap.Delete(roomUser.UserId)
+	if len(r.userMap) == 0 {
+		gameRoomPool.readyToEnded(r)
+	}
 	return nil
 }
 
@@ -119,7 +121,14 @@ func (r *Room) GameStart() (endChan <-chan struct{}, err error) {
 	endChan = r.gameInit()
 	r.Status = Gaming
 	gameRoomPool.readyToGaming(r)
+	r.clearAllUserReady()
 	return endChan, nil
+}
+
+func (r *Room) clearAllUserReady() {
+	for _, roomUser := range r.userMap {
+		roomUser.IsReady = false
+	}
 }
 
 func (r *Room) gameInit() <-chan struct{} {
@@ -144,11 +153,11 @@ func (r *Room) gameInit() <-chan struct{} {
 func (r *Room) gameEnd() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.Status = GameEnded
-	gameRoomPool.gamingToEnded(r)
+	r.Status = GameReady
+	gameRoomPool.gamingToReady(r)
 }
 
-func (r *Room) ToReply() *model.RoomInfoReply {
+func (r *Room) ToReply(userId int64) *model.RoomInfoReply {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	gameId := ""
@@ -156,9 +165,10 @@ func (r *Room) ToReply() *model.RoomInfoReply {
 		gameId = r.Game.GameId
 	}
 	res := &model.RoomInfoReply{
-		RoomId: r.RoomId,
-		GameId: gameId,
-		Status: r.Status,
+		RoomId:   r.RoomId,
+		GameId:   gameId,
+		Status:   r.Status,
+		GameInfo: r.Game.ToReply(userId),
 	}
 	for _, roomUser := range r.userMap {
 		res.RoomUserList = append(res.RoomUserList, roomUser.ToReply())

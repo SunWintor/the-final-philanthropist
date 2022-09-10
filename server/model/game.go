@@ -25,9 +25,11 @@ type GameInfo struct {
 }
 
 type PlayerGameInfo struct {
-	PlayerId string `json:"player_id"`
-	Username string `json:"username"`
-	HeroInfo *Hero  `json:"hero_info"`
+	PlayerId string  `json:"player_id"`
+	Username string  `json:"username"`
+	HeroInfo *Hero   `json:"hero_info"`
+	RoomRank int64   `json:"room_rank"`
+	Ranking  float64 `json:"ranking"`
 }
 
 type RoundDonatedInfo struct {

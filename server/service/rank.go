@@ -44,16 +44,19 @@ func updateRanking(rankSettlementList []*rankSettlementTmp) {
 		Sn := 200 * ((N - 2*n + 1) / (N - 1))
 		Tn := v.CurrentRanking
 		v.UpdateRanking = Tn + D/N + Xn*Sn
+		if v.UpdateRanking == model.DefaultRanking {
+			v.UpdateRanking = model.DefaultRanking
+		}
 	}
 }
 
 func (s *Service) GameRankSettlement(c *gin.Context, playerMap map[string]*game.Player) (err error) {
 	userIdList := getUserIdList(playerMap)
-	var rankList []*model.TfpUserRank
-	if rankList, err = s.dao.RankByUserIds(c, userIdList); err != nil {
+	var dbRankList []*model.TfpUserRank
+	if dbRankList, err = s.dao.RankByUserIdList(c, userIdList); err != nil {
 		return
 	}
-	rankSettlementList := initRankSettlement(rankList, playerMap)
+	rankSettlementList := initRankSettlement(dbRankList, playerMap)
 	updateRanking(rankSettlementList)
 	err = s.dao.TxStartFunc(c, nil, func(tx *sql.Tx) error {
 		var err1 error
@@ -72,10 +75,10 @@ func (s *Service) GameRankSettlement(c *gin.Context, playerMap map[string]*game.
 	return
 }
 
-func initRankSettlement(rankList []*model.TfpUserRank, playerMap map[string]*game.Player) (rankSettlementList []*rankSettlementTmp) {
+func initRankSettlement(dbRankList []*model.TfpUserRank, playerMap map[string]*game.Player) (rankSettlementList []*rankSettlementTmp) {
 	rankSettlementList = getRankSettlementList(playerMap)
 	rankMap := rankSettlementMap(rankSettlementList)
-	for _, v := range rankList {
+	for _, v := range dbRankList {
 		r := rankMap[v.UserId]
 		r.CurrentRanking = v.Ranking
 		r.NeedInsert = false
@@ -103,7 +106,7 @@ func getRankSettlementList(playerMap map[string]*game.Player) (rankSettlementLis
 		rankSettlementList = append(rankSettlementList, &rankSettlementTmp{
 			UserId:         v.UserId,
 			RoomRank:       v.RoomRank,
-			CurrentRanking: 1000,
+			CurrentRanking: model.DefaultRanking,
 			NeedInsert:     true,
 		})
 	}

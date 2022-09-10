@@ -9,4 +9,5 @@ type Player struct {
 	Hero          hero.Hero
 	BankruptRound int64
 	RoomRank      int64
+	Ranking       float64
 }

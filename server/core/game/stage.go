@@ -11,7 +11,7 @@ type Stage interface {
 	templateInit()
 	GetStage() int64
 	GetName() string
-	GetDurationSecond() int64
+	GetDurationSecond(ctx *ProcessContext) int64
 }
 
 type baseStage struct {
@@ -24,10 +24,12 @@ type baseStage struct {
 func (s *baseStage) GetStage() int64 {
 	return s.stage
 }
+
 func (s *baseStage) GetName() string {
 	return s.stageName
 }
-func (s *baseStage) GetDurationSecond() int64 {
+
+func (s *baseStage) GetDurationSecond(ctx *ProcessContext) int64 {
 	return int64(s.duration / time.Second)
 }
 

@@ -12,9 +12,10 @@ type RoomUser struct {
 	Username string
 	RoomId   string
 	IsReady  bool
+	Ranking  float64
 }
 
-func GenerateRoomUser(userId int64) *RoomUser {
+func GenerateRoomUser(userId int64, ranking float64) *RoomUser {
 	userName := ""
 	u, ok := user.GetCopyById(userId)
 	if ok {
@@ -23,6 +24,7 @@ func GenerateRoomUser(userId int64) *RoomUser {
 	return &RoomUser{
 		UserId:   userId,
 		Username: userName,
+		Ranking:  ranking,
 	}
 }
 
@@ -31,6 +33,7 @@ func (p *RoomUser) ToReply() *model.RoomUser {
 		UserId:   p.UserId,
 		IsReady:  p.IsReady,
 		Username: p.Username,
+		Ranking:  p.Ranking,
 	}
 }
 
@@ -39,5 +42,6 @@ func (p *RoomUser) ToPlayer() *game.Player {
 		PlayerId: common.GetRandomPlayerId(),
 		UserId:   p.UserId,
 		Username: p.Username,
+		Ranking:  p.Ranking,
 	}
 }

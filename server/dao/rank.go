@@ -34,20 +34,32 @@ func (d *Dao) UpdateUserRank(tx *sql.Tx, userId int64, ranking float64) (id int6
 	return
 }
 
-func (d *Dao) RankByUserIds(c *gin.Context, userIdList []int64) (rankList []*model.TfpUserRank, err error) {
-	rows, err := d.db.Query(fmt.Sprintf("select id, user_id, ranking, ver, ctime, mtime from tfp_user_rank where user_id in(%s)", common.DisorderString(userIdList)))
+func (d *Dao) RankByUserIdList(c *gin.Context, userIdList []int64) (rankList []*model.TfpUserRank, err error) {
+	rows, err := d.db.Query(fmt.Sprintf("select id, user_id, ranking, ver from tfp_user_rank where user_id in(%s)", common.DisorderString(userIdList)))
 	if err != nil {
 		fmt.Printf("query failed, err:%v\n", err)
 		return
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var rank *model.TfpUserRank
-		err = rows.Scan(&rank.ID, &rank.UserId, &rank.Ranking, &rank.Ver, &rank.Ctime, &rank.Mtime)
+		rank := new(model.TfpUserRank)
+		err = rows.Scan(&rank.ID, &rank.UserId, &rank.Ranking, &rank.Ver)
 		if err != nil && !ecode.IsSqlNoResultErr(err) {
-			log.Printf("RankByUserIds err %+v %+v", userIdList, err)
+			log.Printf("RankByUserIdList err %+v %+v", userIdList, err)
 			return nil, err
 		}
+		rankList = append(rankList, rank)
+	}
+	return
+}
+
+func (d *Dao) RankByUserId(c *gin.Context, userId int64) (rank *model.TfpUserRank, err error) {
+	rank = new(model.TfpUserRank)
+	err = d.db.QueryRow("select id, user_id, ranking, ver from tfp_user_rank where user_id = ?", userId).
+		Scan(&rank.ID, &rank.UserId, &rank.Ranking, &rank.Ver)
+	if err != nil && !ecode.IsSqlNoResultErr(err) {
+		log.Printf("RankByUserId err %+v %+v", userId, err)
+		return nil, err
 	}
 	return
 }

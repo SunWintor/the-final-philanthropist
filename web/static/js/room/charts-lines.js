@@ -164,6 +164,9 @@ function clearTfpChara() {
 }
 
 function clearChart(chart) {
+  if (!chart) {
+    return
+  }
   chart.data.labels.pop();
   chart.data.datasets.forEach(dataset => {
     dataset.data.pop();

@@ -36,17 +36,7 @@ init = function() {
 
 tfp = function() {
     console.time("a")
-    switch (roomStatus) {
-        case 0:
-        case 1:
-            getRoomInfo()
-            break
-        case 2:
-            getGameInfo()
-            break
-        case 3:
-    }
-    flushPage()
+    getRoomInfo()
     console.timeEnd("a")
 }
 
@@ -118,62 +108,56 @@ flushTime = function () {
     $('#time_remaining').html(Math.round(timeRemaining) + "秒")
 }
 
-getGameInfo = function() {
-    $.ajax({
-        type:"get",
-        url:"/game/tfp/game/info?user_id=" + getUserId(),
-        dataType:"json",
-        cache:false,
-        async:true,
-        success:syncGameInfo
-    });
-}
-
-function syncGameInfo(result) {
-    if (checkTFPResult(result, false)) {
-        gameId = result["data"]["game_id"]
-        roomId = result["data"]["room_id"]
-        roomStatus = Number(result["data"]["status"])
-        roundInfo["round_no"] = Number(result["data"]["game_info"]["round_info"]["round_no"])
-        roundInfo["public_opinion"] = Number(result["data"]["game_info"]["round_info"]["public_opinion"])
-        currentStage = result["data"]["game_info"]["round_info"]["stage"]["stage"]
-        playerId = result["data"]["game_info"]["player_game_info"]["player_id"]
-        startTimeUnix = Number(result["data"]["game_info"]["round_info"]["stage"]["start_time"])
-        durationUnix = Number(result["data"]["game_info"]["round_info"]["stage"]["duration"]) * 1000
-        roundInfo["stage_end_time"] = startTimeUnix + durationUnix
-
-        playerList = []
-        for (let roomUser of result["data"]["game_info"]["round_info"]["player_info_list"]) {
-            playerList.push({
-                player_id: roomUser.player_id,
-                username: roomUser.username,
-                hero_name: roomUser.hero_name,
-                current_money:roomUser.current_money,
-                donated_money:roomUser.donated_money,
-                punishment_money:roomUser.punishment_money,
-                bankrupt:roomUser.bankrupt,
-            })
-        }
-
-        playerHistoryList = []
-        for (let roomUser of result["data"]["game_info"]["round_history_list"]) {
-            playerHistoryList.push({
-                player_id: roomUser.player_id,
-                username: roomUser.username,
-                hero_name: roomUser.hero_name,
-                current_money_list:roomUser.current_money_list,
-                donated_money_list:roomUser.donated_money_list,
-                punishment_money_list:roomUser.punishment_money_list,
-                bankrupt_list:roomUser.bankrupt_list,
-            })
-        }
-        syncCharts()
-        flushPage()
+function syncGameInfo(gameInfo) {
+    if (gameInfo == null || !gameInfo) {
+        return
     }
+    if (Number(gameInfo["status"]) === 3 && roomStatus !== 2) {
+        return
+    }
+    gameId = gameInfo["game_id"]
+    roomId = gameInfo["room_id"]
+    roomStatus = Number(gameInfo["status"])
+    roundInfo["round_no"] = Number(gameInfo["game_info"]["round_info"]["round_no"])
+    roundInfo["public_opinion"] = Number(gameInfo["game_info"]["round_info"]["public_opinion"])
+    currentStage = gameInfo["game_info"]["round_info"]["stage"]["stage"]
+    playerId = gameInfo["game_info"]["player_game_info"]["player_id"]
+    startTimeUnix = Number(gameInfo["game_info"]["round_info"]["stage"]["start_time"])
+    durationUnix = Number(gameInfo["game_info"]["round_info"]["stage"]["duration"]) * 1000
+    roundInfo["stage_end_time"] = startTimeUnix + durationUnix
+
+    playerList = []
+    for (let roomUser of gameInfo["game_info"]["round_info"]["player_info_list"]) {
+        playerList.push({
+            player_id: roomUser.player_id,
+            username: roomUser.username,
+            hero_name: roomUser.hero_name,
+            current_money:roomUser.current_money,
+            donated_money:roomUser.donated_money,
+            punishment_money:roomUser.punishment_money,
+            bankrupt:roomUser.bankrupt,
+        })
+    }
+
+    playerHistoryList = []
+    for (let roomUser of gameInfo["game_info"]["round_history_list"]) {
+        playerHistoryList.push({
+            player_id: roomUser.player_id,
+            username: roomUser.username,
+            hero_name: roomUser.hero_name,
+            current_money_list:roomUser.current_money_list,
+            donated_money_list:roomUser.donated_money_list,
+            punishment_money_list:roomUser.punishment_money_list,
+            bankrupt_list:roomUser.bankrupt_list,
+        })
+    }
+    syncCharts()
 }
 
 function syncCharts() {
     index = 0
+    playerMoneyChartList = []
+    playerHistoryChartList = []
     for (let player of playerHistoryList) {
         tempMoney = {
             label: player.username,
@@ -214,6 +198,7 @@ function syncRoomInfo(result) {
             })
         }
         playerList.sort(comparePlayer)
+        syncGameInfo(result["data"]["game_info"])
         flushPage()
     }
 }
@@ -331,6 +316,6 @@ $(function(){
     });
 })
 
-tfp()
-setInterval(tfp,2000)
+setInterval(tfp,10000)
 setInterval(flushTime,500)
+tfp()

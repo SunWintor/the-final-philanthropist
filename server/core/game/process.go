@@ -90,6 +90,7 @@ func (p *Process) toUserInfoReply(userId int64) *model.PlayerGameInfo {
 			userInfo.PlayerId = playerId
 			userInfo.Username = player.Username
 			userInfo.HeroInfo = player.Hero.ToReply()
+			userInfo.Ranking = player.Ranking
 		}
 	}
 	return userInfo
@@ -103,7 +104,7 @@ func (p *Process) toRoundInfoReply(playerId string) *model.RoundInfo {
 			Stage:          p.Stage.GetStage(),
 			StartTime:      p.StageStartTime.UnixNano() / 1000 / 1000,
 			Name:           p.Stage.GetName(),
-			DurationSecond: p.Stage.GetDurationSecond(),
+			DurationSecond: p.Stage.GetDurationSecond(p.ProcessContext),
 		},
 		PlayerInfoList: p.toPlayerInfoListReply(playerId),
 	}

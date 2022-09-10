@@ -44,6 +44,9 @@ func (g *Game) start() {
 }
 
 func (g *Game) ToReply(userId int64) *model.GameInfoReply {
+	if g == nil {
+		return nil
+	}
 	var gameInfo *model.GameInfo
 	if g.Process != nil {
 		gameInfo = g.Process.ToGameInfoReply(userId)

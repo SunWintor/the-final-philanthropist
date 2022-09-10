@@ -57,13 +57,17 @@ func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *mod
 	var r *room.Room
 	r, err = room.UserRoom(arg.UserId)
 	if r != nil {
-		res = r.ToReply()
+		res = r.ToReply(arg.UserId)
 		return
 	}
 	r = room.GetJoinableRoom()
-	roomUser := room.GenerateRoomUser(arg.UserId)
+	var rankInfo *model.TfpUserRank
+	if rankInfo, err = s.GetUserRankInfo(c, arg.UserId); err != nil {
+		return
+	}
+	roomUser := room.GenerateRoomUser(arg.UserId, rankInfo.Ranking)
 	err = r.Join(roomUser)
-	res = r.ToReply()
+	res = r.ToReply(arg.UserId)
 	return
 }
 
@@ -95,6 +99,6 @@ func (s *Service) RoomInfo(c *gin.Context, arg *model.UserIdReq) (res *model.Roo
 		err = ecode.RoomNotExistsError
 		return
 	}
-	res = r.ToReply()
+	res = r.ToReply(arg.UserId)
 	return
 }

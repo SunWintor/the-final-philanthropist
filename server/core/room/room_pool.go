@@ -71,16 +71,30 @@ func (r *RoomPool) readyToGaming(room *Room) (ok bool) {
 	return
 }
 
-func (r *RoomPool) gamingToEnded(room *Room) (ok bool) {
+func (r *RoomPool) gamingToReady(room *Room) (ok bool) {
 	if room == nil {
-		glog.Error(fmt.Sprintf("gamingToEnded room is nil ! %v", r))
+		glog.Error(fmt.Sprintf("readyToGaming room is nil ! %v", r))
 		return
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, ok = r.roomGamingMap[room.RoomId]; ok {
-		r.roomEndedMap[room.RoomId] = room
+		r.roomReadyMap[room.RoomId] = room
 		delete(r.roomGamingMap, room.RoomId)
+	}
+	return
+}
+
+func (r *RoomPool) readyToEnded(room *Room) (ok bool) {
+	if room == nil {
+		glog.Error(fmt.Sprintf("readyToEnded room is nil ! %v", r))
+		return
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if _, ok = r.roomReadyMap[room.RoomId]; ok {
+		r.roomEndedMap[room.RoomId] = room
+		delete(r.roomReadyMap, room.RoomId)
 		go func() {
 			<-time.After(time.Minute * 10)
 			delete(r.roomEndedMap, room.RoomId)
