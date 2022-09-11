@@ -25,11 +25,12 @@ type GameInfo struct {
 }
 
 type PlayerGameInfo struct {
-	PlayerId string  `json:"player_id"`
-	Username string  `json:"username"`
-	HeroInfo *Hero   `json:"hero_info"`
-	RoomRank int64   `json:"room_rank"`
-	Ranking  float64 `json:"ranking"`
+	PlayerId  string  `json:"player_id"`
+	Username  string  `json:"username"`
+	HeroInfo  *Hero   `json:"hero_info"`
+	RoomRank  int64   `json:"room_rank"`
+	Ranking   float64 `json:"ranking"`
+	RankingUp float64 `json:"ranking_up"`
 }
 
 type RoundDonatedInfo struct {
@@ -50,13 +51,15 @@ type RoundInfo struct {
 }
 
 type PlayerInfo struct {
-	PlayerId        string `json:"player_id"`
-	Username        string `json:"username"`
-	HeroName        string `json:"hero_name"`
-	CurrentMoney    int64  `json:"current_money"`
-	DonatedMoney    int64  `json:"donated_money"`
-	PunishmentMoney int64  `json:"punishment_money"`
-	Bankrupt        bool   `json:"bankrupt"`
+	PlayerId        string  `json:"player_id"`
+	Username        string  `json:"username"`
+	HeroName        string  `json:"hero_name"`
+	CurrentMoney    int64   `json:"current_money"`
+	DonatedMoney    int64   `json:"donated_money"`
+	PunishmentMoney int64   `json:"punishment_money"`
+	Bankrupt        bool    `json:"bankrupt"`
+	Ranking         float64 `json:"ranking"`
+	RankingUp       float64 `json:"ranking_up"`
 }
 
 type Stage struct {

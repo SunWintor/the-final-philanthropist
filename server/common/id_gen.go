@@ -16,8 +16,8 @@ func GetNextUserId() int64 {
 	return userId
 }
 
-func GetRandomRoomId() string {
-	return randomId("R", &roomId)
+func GetRoomId() string {
+	return id("R", &roomId)
 }
 
 func GetRandomPlayerId() string {
@@ -31,5 +31,10 @@ func GetRandomGameId() string {
 func randomId(prefix string, id *int64) string {
 	atomic.AddInt64(id, 1)
 	// 我愿称之为小雪花算法
-	return fmt.Sprintf("%s%06d%06d", prefix, id, rand.Int63n(1000000))
+	return fmt.Sprintf("%s%06d%06d", prefix, *id, rand.Int63n(1000000))
+}
+
+func id(prefix string, id *int64) string {
+	atomic.AddInt64(id, 1)
+	return fmt.Sprintf("%s%06d", prefix, *id)
 }

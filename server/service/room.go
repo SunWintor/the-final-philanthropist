@@ -20,7 +20,7 @@ func (s *Service) Ready(c *gin.Context, arg *model.UserIdReq) (err error) {
 	}
 	go func() {
 		<-endChan
-		s.GameEnd(&gin.Context{}, r.Game)
+		s.GameEnd(&gin.Context{}, r)
 	}()
 	return
 }
@@ -58,17 +58,53 @@ func (s *Service) JoinRandomRoom(c *gin.Context, arg *model.UserIdReq) (res *mod
 	r, err = room.UserRoom(arg.UserId)
 	if r != nil {
 		res = r.ToReply(arg.UserId)
+		err = ecode.AlreadyInRoomError
 		return
 	}
-	r = room.GetJoinableRoom()
+	return s.joinRoom(c, arg.UserId, room.GetJoinableRoom())
+}
+
+func (s *Service) JoinNew(c *gin.Context, arg *model.UserIdReq) (res *model.RoomInfoReply, err error) {
+	res = new(model.RoomInfoReply)
+	var r *room.Room
+	r, err = room.UserRoom(arg.UserId)
+	if r != nil {
+		res = r.ToReply(arg.UserId)
+		err = ecode.AlreadyInRoomError
+		return
+	}
+	return s.joinRoom(c, arg.UserId, room.CreateEmptyRoom())
+}
+
+func (s *Service) JoinRoomId(c *gin.Context, arg *model.JoinRoomIdReq) (res *model.RoomInfoReply, err error) {
+	res = new(model.RoomInfoReply)
+	var r *room.Room
+	r, err = room.UserRoom(arg.UserId)
+	if r != nil {
+		res = r.ToReply(arg.UserId)
+		err = ecode.AlreadyInRoomError
+		return
+	}
+	r = room.GetRoom(arg.RoomId)
+	if r == nil {
+		err = ecode.RoomNotExistsError
+		return
+	}
+	if r.Status != room.GameReady {
+		err = ecode.RoomNotReadyError
+		return
+	}
+	return s.joinRoom(c, arg.UserId, r)
+}
+
+func (s *Service) joinRoom(c *gin.Context, userId int64, r *room.Room) (res *model.RoomInfoReply, err error) {
 	var rankInfo *model.TfpUserRank
-	if rankInfo, err = s.GetUserRankInfo(c, arg.UserId); err != nil {
+	if rankInfo, err = s.GetUserRankInfo(c, userId); err != nil {
 		return
 	}
-	roomUser := room.GenerateRoomUser(arg.UserId, rankInfo.Ranking)
+	roomUser := room.GenerateRoomUser(userId, rankInfo.Ranking)
 	err = r.Join(roomUser)
-	res = r.ToReply(arg.UserId)
-	return
+	return r.ToReply(userId), err
 }
 
 func (s *Service) ExitRoom(c *gin.Context, arg *model.UserIdReq) (err error) {

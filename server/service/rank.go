@@ -5,9 +5,11 @@ import (
 	"github.com/SunWintor/tfp/server/core/game"
 	"github.com/SunWintor/tfp/server/model"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 type rankSettlementTmp struct {
+	PlayerId       string
 	UserId         int64
 	RoomRank       int64
 	CurrentRanking float64
@@ -44,19 +46,20 @@ func updateRanking(rankSettlementList []*rankSettlementTmp) {
 		Sn := 200 * ((N - 2*n + 1) / (N - 1))
 		Tn := v.CurrentRanking
 		v.UpdateRanking = Tn + D/N + Xn*Sn
-		if v.UpdateRanking == model.DefaultRanking {
+		log.Printf("N=%+v A=%+v D=%+v Xn=%+v n=%+v Sn=%+v Tn=%+v EndTn=%+v", N, A, D, Xn, n, Sn, Tn, v.UpdateRanking)
+		if v.UpdateRanking < model.DefaultRanking {
 			v.UpdateRanking = model.DefaultRanking
 		}
 	}
 }
 
-func (s *Service) GameRankSettlement(c *gin.Context, playerMap map[string]*game.Player) (err error) {
+func (s *Service) GameRankSettlement(c *gin.Context, playerMap map[string]*game.Player) (rankSettlementList []*rankSettlementTmp, err error) {
 	userIdList := getUserIdList(playerMap)
 	var dbRankList []*model.TfpUserRank
 	if dbRankList, err = s.dao.RankByUserIdList(c, userIdList); err != nil {
 		return
 	}
-	rankSettlementList := initRankSettlement(dbRankList, playerMap)
+	rankSettlementList = initRankSettlement(dbRankList, playerMap)
 	updateRanking(rankSettlementList)
 	err = s.dao.TxStartFunc(c, nil, func(tx *sql.Tx) error {
 		var err1 error
@@ -104,6 +107,7 @@ func getUserIdList(playerMap map[string]*game.Player) (userIdList []int64) {
 func getRankSettlementList(playerMap map[string]*game.Player) (rankSettlementList []*rankSettlementTmp) {
 	for _, v := range playerMap {
 		rankSettlementList = append(rankSettlementList, &rankSettlementTmp{
+			PlayerId:       v.PlayerId,
 			UserId:         v.UserId,
 			RoomRank:       v.RoomRank,
 			CurrentRanking: model.DefaultRanking,

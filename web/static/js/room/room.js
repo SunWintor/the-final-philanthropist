@@ -41,6 +41,7 @@ tfp = function() {
 }
 
 flushPage = function() {
+    stageMap["-1"] = "房间编号:" + roomId
     flushStage()
     flushPlayer()
     flushRoundInfo()
@@ -62,13 +63,18 @@ flushPlayer = function() {
             }
         }
         username = roomUser.username?roomUser.username:"SILENT HOUSE"
+        username = username + "(R:" + roomUser.ranking
+        if (roomUser.ranking_up) {
+            username = username + rankingTemplate.signMix(roomUser.ranking_up>0?"red":"green", roomUser.ranking_up>0?"+"+roomUser.ranking_up:roomUser.ranking_up)
+        }
+        username = username + ")"
         hero_name = roomUser.hero_name?roomUser.hero_name:"未选择英雄"
         current_money = roomUser.current_money?roomUser.current_money:0
         punishment_money = roomUser.punishment_money?"<p style='color:red;font-weight: bold;'>" + roomUser.punishment_money + "</p>":0
         donated_money = roomUser.donated_money?roomUser.donated_money:0
         donated_money = donated_money >=0?donated_money:"-"
         donated_money = "<p style='font-weight: bold;'>" + donated_money + "</p>"
-        html += userTemplate.signMix("/game/tfp/static/image/room/silenthouse-black.png", roomUser.username,
+        html += userTemplate.signMix("/game/tfp/static/image/room/silenthouse-black.png", username,
             hero_name, current_money, statusMap[playerStatus], donated_money, punishment_money)
     }
     $('#player_list').html(html)
@@ -136,6 +142,8 @@ function syncGameInfo(gameInfo) {
             donated_money:roomUser.donated_money,
             punishment_money:roomUser.punishment_money,
             bankrupt:roomUser.bankrupt,
+            ranking: roomUser.ranking,
+            ranking_up: roomUser.ranking_up,
         })
     }
 
@@ -181,20 +189,36 @@ function syncCharts() {
     }
 }
 
+function syncRoomInfoJoin(result) {
+    if (result["code"] === 10004) {
+        init()
+        flushPage()
+        return
+    }
+    if (checkTFPResult(result, true)) {
+        syncRoomInfo(result)
+    }
+}
+
 function syncRoomInfo(result) {
-    // {"code":0,"data":{"game_id":"","room_id":"R18047856779410","status":1,"room_user_list":[{"player_id":"","user_id":1,"is_ready":false}]},"msg":""}
+    if (result["code"] === 10004) {
+        init()
+        flushPage()
+        return
+    }
     if (checkTFPResult(result, false)) {
         gameId = result["data"]["game_id"]
         roomId = result["data"]["room_id"]
         roomStatus = Number(result["data"]["status"])
         playerList = []
         for (let roomUser of result["data"]["room_user_list"]) {
-            //{player_id: '', user_id: 1, username: 'sdf', is_ready: false}
             playerList.push({
                 player_id: roomUser.player_id,
                 user_id: roomUser.user_id,
                 username: roomUser.username,
-                is_ready: roomUser.is_ready
+                is_ready: roomUser.is_ready,
+                ranking: roomUser.ranking,
+                ranking_up: roomUser.ranking_up,
             })
         }
         playerList.sort(comparePlayer)
@@ -224,7 +248,37 @@ $(function(){
             cache:false,
             async:true,
             contentType: "application/json",
-            success:syncRoomInfo
+            success:syncRoomInfoJoin
+        });
+    });
+})
+
+$(function(){
+    $('#join_new').bind('click', function () {
+        $.ajax({
+            type:"post",
+            url:"/game/tfp/room/join/new",
+            data:JSON.stringify({"user_id": getUserId()}),
+            dataType:"json",
+            cache:false,
+            async:true,
+            contentType: "application/json",
+            success:syncRoomInfoJoin
+        });
+    });
+})
+
+$(function(){
+    $('#join_room_id').bind('click', function () {
+        $.ajax({
+            type:"post",
+            url:"/game/tfp/room/join/room_id",
+            data:JSON.stringify({"user_id": getUserId(), "room_id": $("#room_id").val()}),
+            dataType:"json",
+            cache:false,
+            async:true,
+            contentType: "application/json",
+            success:syncRoomInfoJoin
         });
     });
 })
@@ -316,6 +370,6 @@ $(function(){
     });
 })
 
-setInterval(tfp,10000)
+setInterval(tfp,2000)
 setInterval(flushTime,500)
 tfp()

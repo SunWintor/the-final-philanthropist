@@ -10,6 +10,8 @@ import (
 func handleRoom(r *gin.RouterGroup) {
 	room := r.Group("/room", filter.JWTAuthHandler())
 
+	room.POST("/join/new", joinNew, filter.EqualUltraViresHandler())
+	room.POST("/join/room_id", joinRoomId, filter.EqualUltraViresHandler())
 	room.POST("/join/random", joinRandomRoom, filter.EqualUltraViresHandler())
 	room.POST("/exit", exitRoom, filter.EqualUltraViresHandler())
 
@@ -46,6 +48,26 @@ func joinRandomRoom(c *gin.Context) {
 		return
 	}
 	info, err := svr.JoinRandomRoom(c, u)
+	gin_util.AutoResult(c, info, err)
+}
+
+func joinNew(c *gin.Context) {
+	var u *model.UserIdReq
+	if err := c.ShouldBindJSON(&u); err != nil {
+		gin_util.FailWithError(c, err)
+		return
+	}
+	info, err := svr.JoinNew(c, u)
+	gin_util.AutoResult(c, info, err)
+}
+
+func joinRoomId(c *gin.Context) {
+	var u *model.JoinRoomIdReq
+	if err := c.ShouldBindJSON(&u); err != nil {
+		gin_util.FailWithError(c, err)
+		return
+	}
+	info, err := svr.JoinRoomId(c, u)
 	gin_util.AutoResult(c, info, err)
 }
 

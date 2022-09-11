@@ -75,6 +75,7 @@ func (p *Process) toRoundHistoryReplyList() (res []*model.RoundDonatedInfo) {
 		}
 	}
 	for _, v := range replyMap {
+
 		res = append(res, v)
 	}
 	sort.Slice(res, func(i, j int) bool {
@@ -117,6 +118,7 @@ func (p *Process) toPlayerInfoListReply(playerId string) []*model.PlayerInfo {
 		if p.Stage.GetStage() == DonatedStage && donatedInfo.PlayerId != playerId {
 			donatedInfoReply.DonatedMoney = -1
 		}
+		donatedInfoReply.RankingUp = p.ProcessContext.PlayerMap[donatedInfo.PlayerId].RankingUp
 		playerInfoList = append(playerInfoList, donatedInfoReply)
 	}
 	sort.Slice(playerInfoList, func(i, j int) bool {

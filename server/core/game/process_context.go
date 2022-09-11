@@ -1,6 +1,10 @@
 package game
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+	"strconv"
+)
 
 type ProcessContext struct {
 	Round            int64
@@ -34,6 +38,7 @@ func (p *ProcessContext) initCurrentRound() {
 		donatedInfo := &DonatedInfo{
 			PlayerId:        playerId,
 			Username:        player.Username,
+			Ranking:         player.Ranking,
 			DonatedMoney:    p.CurrentRoundInfo.defaultDonatedMoney(), // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
 			PunishmentMoney: 0,
 		}
@@ -111,6 +116,26 @@ func (p *ProcessContext) judgementGameEnd() {
 	p.rankSettlement()
 	if p.RichPlayerCount <= 1 {
 		p.roundToHistory()
+		p.endGameRankSettlement()
 		close(p.EndGame)
 	}
+}
+
+func (p *ProcessContext) endGameRankSettlement() {
+	for _, player := range p.PlayerMap {
+		if player.RoomRank == 0 {
+			player.RoomRank = p.RichPlayerCount
+			p.RichPlayerCount--
+		}
+	}
+}
+
+func (p *ProcessContext) GetRankingUp(userId int64) float64 {
+	for _, v := range p.PlayerMap {
+		if v.UserId == userId {
+			value, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", v.RankingUp), 64)
+			return value
+		}
+	}
+	return 0
 }

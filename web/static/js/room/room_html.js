@@ -55,6 +55,10 @@ lineExampleTemplate = `
 </div>
 `
 
+rankingTemplate = `
+<span style='color:{0};font-weight: bold;'>{1}</span>
+`
+
 String.prototype.signMix= function() {
     if(arguments.length === 0) return this;
     var param = arguments[0], str= this;

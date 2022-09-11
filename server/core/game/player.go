@@ -10,4 +10,5 @@ type Player struct {
 	BankruptRound int64
 	RoomRank      int64
 	Ranking       float64
+	RankingUp     float64
 }

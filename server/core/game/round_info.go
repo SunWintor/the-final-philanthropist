@@ -17,6 +17,7 @@ type DonatedInfo struct {
 	PlayerId        string
 	Username        string
 	HeroName        string
+	Ranking         float64
 	CurrentMoney    int64
 	MoneyLimit      int64
 	DonatedMoney    int64
@@ -33,6 +34,7 @@ func (d *DonatedInfo) ToPlayerReply() *model.PlayerInfo {
 		DonatedMoney:    d.DonatedMoney,
 		PunishmentMoney: d.PunishmentMoney,
 		Bankrupt:        d.Bankrupt,
+		Ranking:         d.Ranking,
 	}
 }
 

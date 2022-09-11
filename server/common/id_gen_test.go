@@ -7,7 +7,7 @@ import (
 
 func TestGetRandomRoomId(t *testing.T) {
 	t.Run("测试生成的roomId是否有效", func(t *testing.T) {
-		roomId := GetRandomRoomId()
+		roomId := GetRoomId()
 		assert.Contains(t, roomId, "R0") // 笑死，这个早晚踩坑
 		assert.Equal(t, len(roomId), 13)
 	})

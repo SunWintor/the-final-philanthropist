@@ -9,10 +9,11 @@ type RoomInfoReply struct {
 }
 
 type RoomUser struct {
-	UserId   int64   `json:"user_id"`
-	Username string  `json:"username"`
-	IsReady  bool    `json:"is_ready"`
-	Ranking  float64 `json:"ranking"`
+	UserId    int64   `json:"user_id"`
+	Username  string  `json:"username"`
+	IsReady   bool    `json:"is_ready"`
+	Ranking   float64 `json:"ranking"`
+	RankingUp float64 `json:"ranking_up"`
 }
 
 type Hero struct {
@@ -20,4 +21,9 @@ type Hero struct {
 	CurrentMoney int64  `json:"current_money"`
 	Name         string `json:"name"`
 	SkillInfo    string `json:"skill_info"`
+}
+
+type JoinRoomIdReq struct {
+	UserId int64  `json:"user_id" form:"user_id"`
+	RoomId string `json:"room_id" form:"room_id"`
 }
