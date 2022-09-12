@@ -38,7 +38,10 @@ func (d *Dao) UserById(c *gin.Context, id int64) (user *model.UserInfo, err erro
 	user = new(model.UserInfo)
 	err = d.db.QueryRow("SELECT id, username, password, token FROM tfp_user WHERE id = ?", id).
 		Scan(&user.Id, &user.Username, &user.Password, &user.Token)
-	if err != nil && !ecode.IsSqlNoResultErr(err) {
+	if err != nil {
+		if ecode.IsSqlNoResultErr(err) {
+			return nil, nil
+		}
 		log.Printf("UserById err %+v %+v", id, err)
 		return nil, err
 	}
@@ -49,7 +52,10 @@ func (d *Dao) UserByName(c *gin.Context, username string) (user *model.UserInfo,
 	user = new(model.UserInfo)
 	err = d.db.QueryRow("SELECT id, username, password, token FROM tfp_user WHERE username = ?", username).
 		Scan(&user.Id, &user.Username, &user.Password, &user.Token)
-	if err != nil && !ecode.IsSqlNoResultErr(err) {
+	if err != nil {
+		if ecode.IsSqlNoResultErr(err) {
+			return nil, nil
+		}
 		log.Printf("UserByName err %+v %+v", username, err)
 		return nil, err
 	}

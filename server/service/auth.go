@@ -22,6 +22,9 @@ func (s *Service) Register(c *gin.Context, arg *model.RegisterReq) (res *model.U
 		err = ecode.AccountAlreadyRegError
 		return
 	}
+	if userInfo == nil {
+		userInfo = new(model.UserInfo)
+	}
 	j := common.NewJWT()
 	if userInfo.Token, err = j.CreateToken(j.CreateClaims(arg.Username + ":" + arg.Password)); err != nil {
 		return

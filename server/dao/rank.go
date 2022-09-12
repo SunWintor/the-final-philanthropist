@@ -44,7 +44,10 @@ func (d *Dao) RankByUserIdList(c *gin.Context, userIdList []int64) (rankList []*
 	for rows.Next() {
 		rank := new(model.TfpUserRank)
 		err = rows.Scan(&rank.ID, &rank.UserId, &rank.Ranking, &rank.Ver)
-		if err != nil && !ecode.IsSqlNoResultErr(err) {
+		if err != nil {
+			if ecode.IsSqlNoResultErr(err) {
+				return nil, nil
+			}
 			log.Printf("RankByUserIdList err %+v %+v", userIdList, err)
 			return nil, err
 		}
@@ -57,7 +60,10 @@ func (d *Dao) RankByUserId(c *gin.Context, userId int64) (rank *model.TfpUserRan
 	rank = new(model.TfpUserRank)
 	err = d.db.QueryRow("select id, user_id, ranking, ver from tfp_user_rank where user_id = ?", userId).
 		Scan(&rank.ID, &rank.UserId, &rank.Ranking, &rank.Ver)
-	if err != nil && !ecode.IsSqlNoResultErr(err) {
+	if err != nil {
+		if ecode.IsSqlNoResultErr(err) {
+			return nil, nil
+		}
 		log.Printf("RankByUserId err %+v %+v", userId, err)
 		return nil, err
 	}
