@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"github.com/golang/glog"
 	"sync"
-	"time"
 )
 
 type RoomPool struct {
 	roomReadyMap  map[string]*Room
 	roomGamingMap map[string]*Room
-	roomEndedMap  map[string]*Room
 	mu            sync.RWMutex
 }
 
@@ -30,7 +28,6 @@ func roomPoolInit() {
 	gameRoomPool = new(RoomPool)
 	gameRoomPool.roomReadyMap = make(map[string]*Room, 64)
 	gameRoomPool.roomGamingMap = make(map[string]*Room, 64)
-	gameRoomPool.roomEndedMap = make(map[string]*Room, 64)
 }
 
 func GetJoinableRoom() (res *Room) {
@@ -40,6 +37,11 @@ func GetJoinableRoom() (res *Room) {
 	}
 	return
 }
+
+func CreateEmptyRoom() (res *Room) {
+	return pool().createEmptyRoomToReady()
+}
+
 func GetRoom(roomId string) (room *Room) {
 	r := pool()
 	r.mu.RLock()
@@ -49,9 +51,6 @@ func GetRoom(roomId string) (room *Room) {
 		return
 	}
 	if room, ok = r.roomGamingMap[roomId]; ok {
-		return
-	}
-	if room, ok = r.roomEndedMap[roomId]; ok {
 		return
 	}
 	return
@@ -71,20 +70,29 @@ func (r *RoomPool) readyToGaming(room *Room) (ok bool) {
 	return
 }
 
-func (r *RoomPool) gamingToEnded(room *Room) (ok bool) {
+func (r *RoomPool) gamingToReady(room *Room) (ok bool) {
 	if room == nil {
-		glog.Error(fmt.Sprintf("gamingToEnded room is nil ! %v", r))
+		glog.Error(fmt.Sprintf("readyToGaming room is nil ! %v", r))
 		return
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, ok = r.roomGamingMap[room.RoomId]; ok {
-		r.roomEndedMap[room.RoomId] = room
+		r.roomReadyMap[room.RoomId] = room
 		delete(r.roomGamingMap, room.RoomId)
-		go func() {
-			<-time.After(time.Minute * 10)
-			delete(r.roomEndedMap, room.RoomId)
-		}()
+	}
+	return
+}
+
+func (r *RoomPool) readyToEnded(room *Room) (ok bool) {
+	if room == nil {
+		glog.Error(fmt.Sprintf("readyToEnded room is nil ! %v", r))
+		return
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if _, ok = r.roomReadyMap[room.RoomId]; ok {
+		delete(r.roomReadyMap, room.RoomId)
 	}
 	return
 }

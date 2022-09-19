@@ -12,7 +12,7 @@ type Stage interface {
 	templateInit()
 	GetStage() int64
 	GetName() string
-	GetDurationSecond() int64
+	GetDurationSecond(ctx *ProcessContext) int64
 	RunAllHeroSkill(ctx *ProcessContext)
 	runHeroSkill(ctx *ProcessContext, h *hero.Hero)
 }
@@ -32,7 +32,7 @@ func (s *baseStage) GetName() string {
 	return s.stageName
 }
 
-func (s *baseStage) GetDurationSecond() int64 {
+func (s *baseStage) GetDurationSecond(ctx *ProcessContext) int64 {
 	return int64(s.duration / time.Second)
 }
 
@@ -90,7 +90,6 @@ func init() {
 	StageMap[RoundStartStage].setNext(StageMap[DonatedStage])
 	StageMap[DonatedStage].setNext(StageMap[DonatedEndStage])
 	StageMap[DonatedEndStage].setNext(StageMap[PublicOpinionStage])
-	StageMap[PublicOpinionStage].setNext(StageMap[BankruptcyStage])
-	StageMap[BankruptcyStage].setNext(StageMap[RoundEndStage])
+	StageMap[PublicOpinionStage].setNext(StageMap[RoundEndStage])
 	StageMap[RoundEndStage].setNext(StageMap[RoundStartStage])
 }

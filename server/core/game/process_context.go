@@ -1,6 +1,10 @@
 package game
 
-import "github.com/SunWintor/tfp/server/core/game/hero"
+import (
+	"fmt"
+	"sort"
+	"strconv"
+)
 
 type ProcessContext struct {
 	Round            int64
@@ -8,6 +12,7 @@ type ProcessContext struct {
 	CurrentRoundInfo *RoundInfo
 	RoundHistory     []*RoundInfo
 	EndGame          chan struct{}
+	RichPlayerCount  int64
 }
 
 const (
@@ -30,27 +35,15 @@ func (p *ProcessContext) initCurrentRound() {
 		DonatedInfoList: make([]*DonatedInfo, 0, len(p.PlayerMap)),
 	}
 	for playerId, player := range p.PlayerMap {
-		h := player.Hero
-		var currentMoney, moneyLimit int64
-		var heroName string
-		var isBankrupt bool
-		defaultMoney := p.CurrentRoundInfo.defaultDonatedMoney()
-		if h != nil {
-			currentMoney, moneyLimit, heroName, isBankrupt = h.GetCurrentMoney(), h.GetMoneyLimit(), h.GetName(), h.IsBankrupt()
-			if currentMoney < defaultMoney {
-				defaultMoney = currentMoney
-			}
-		}
-		p.CurrentRoundInfo.DonatedInfoList = append(p.CurrentRoundInfo.DonatedInfoList, &DonatedInfo{
+		donatedInfo := &DonatedInfo{
 			PlayerId:        playerId,
 			Username:        player.Username,
-			CurrentMoney:    currentMoney,
-			HeroName:        heroName,
-			MoneyLimit:      moneyLimit,
-			DonatedMoney:    defaultMoney, // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
-			PunishmentMoney: 0,            // 显式声明，表示全部字段都处理过了
-			Bankrupt:        isBankrupt,   // 同上
-		})
+			Ranking:         player.Ranking,
+			DonatedMoney:    p.CurrentRoundInfo.defaultDonatedMoney(), // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
+			PunishmentMoney: 0,
+		}
+		donatedInfo.initHeroInfo(player.Hero)
+		p.CurrentRoundInfo.DonatedInfoList = append(p.CurrentRoundInfo.DonatedInfoList, donatedInfo)
 	}
 }
 
@@ -95,22 +88,59 @@ func (p *ProcessContext) decPlayerMoney(money int64, donatedInfo *DonatedInfo) {
 	return
 }
 
+func (p *ProcessContext) rankSettlement() {
+	var roundBankruptPlayer []*Player
+	for _, player := range p.PlayerMap {
+		if !player.Hero.IsBankrupt() {
+			continue
+		}
+		if player.BankruptRound == 0 {
+			player.BankruptRound = p.Round
+			roundBankruptPlayer = append(roundBankruptPlayer, player)
+		}
+	}
+	if len(roundBankruptPlayer) == 0 {
+		return
+	}
+	sort.Slice(roundBankruptPlayer, func(i, j int) bool {
+		return roundBankruptPlayer[i].Hero.GetCurrentMoney() < roundBankruptPlayer[j].Hero.GetCurrentMoney()
+	})
+	for _, player := range roundBankruptPlayer {
+		player.RoomRank = p.RichPlayerCount
+		p.RichPlayerCount--
+	}
+}
+
 func (p *ProcessContext) roundToHistory() {
 	p.RoundHistory = append(p.RoundHistory, p.CurrentRoundInfo)
 }
 
 func (p *ProcessContext) judgementGameEnd() {
-	lifePlayerCount := 0
-	for _, player := range p.PlayerMap {
-		if player.Hero.IsBankrupt() {
-			continue
-		}
-		lifePlayerCount++
-	}
-	if lifePlayerCount <= 1 {
+	p.rankSettlement()
+	if p.RichPlayerCount <= 1 {
 		p.roundToHistory()
+		p.endGameRankSettlement()
 		close(p.EndGame)
 	}
+}
+
+func (p *ProcessContext) endGameRankSettlement() {
+	for _, player := range p.PlayerMap {
+		if player.RoomRank == 0 {
+			player.RoomRank = p.RichPlayerCount
+			p.RichPlayerCount--
+		}
+	}
+}
+
+func (p *ProcessContext) GetRankingUp(userId int64) float64 {
+	for _, v := range p.PlayerMap {
+		if v.UserId == userId {
+			value, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", v.RankingUp), 64)
+			return value
+		}
+	}
+	return 0
 }
 
 func (p *ProcessContext) ToSkillContext() *hero.SkillContext {

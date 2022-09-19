@@ -2,6 +2,8 @@ package game
 
 import (
 	"github.com/SunWintor/tfp/server/model"
+	"log"
+	"sort"
 	"time"
 )
 
@@ -34,8 +36,8 @@ func (p *Process) ToGameInfoReply(userId int64) *model.GameInfo {
 	}
 }
 
-func (p *Process) emptyRoundHistoryReply() *model.RoundHistory {
-	var roundPlayerInfo []*model.RoundDonatedInfo
+func (p *Process) emptyRoundHistoryReplyMap() (res map[string]*model.RoundDonatedInfo) {
+	res = make(map[string]*model.RoundDonatedInfo, len(p.ProcessContext.PlayerMap)*2)
 	for _, player := range p.ProcessContext.PlayerMap {
 		heroName := ""
 		limitMoney := int64(0)
@@ -44,30 +46,42 @@ func (p *Process) emptyRoundHistoryReply() *model.RoundHistory {
 			limitMoney = player.Hero.GetMoneyLimit()
 		}
 		empty := &model.RoundDonatedInfo{
-			PlayerId:        player.PlayerId,
-			Username:        player.Username,
-			HeroName:        heroName,
-			CurrentMoney:    limitMoney, // 这里没有赋值错误，就是要展示玩家的初始值，因为这个empty是展示在图标首部的
-			DonatedMoney:    0,
-			PunishmentMoney: 0,
-			Bankrupt:        false,
+			PlayerId:            player.PlayerId,
+			Username:            player.Username,
+			HeroName:            heroName,
+			CurrentMoneyList:    []int64{limitMoney}, // 这里没有赋值错误，就是要展示玩家的初始值，因为这个empty是展示在图标首部的
+			DonatedMoneyList:    []int64{0},
+			PunishmentMoneyList: []int64{0},
+			BankruptList:        []bool{false},
 		}
-		roundPlayerInfo = append(roundPlayerInfo, empty)
+		res[player.PlayerId] = empty
 	}
-	return &model.RoundHistory{
-		RoundNo:              0,
-		RoundDonatedInfoList: roundPlayerInfo,
-	}
+	return
 }
 
-func (p *Process) toRoundHistoryReplyList() []*model.RoundHistory {
-	var res []*model.RoundHistory
-	// 前端展示的图表的第一行数据
-	res = append(res, p.emptyRoundHistoryReply())
+func (p *Process) toRoundHistoryReplyList() (res []*model.RoundDonatedInfo) {
+	replyMap := p.emptyRoundHistoryReplyMap()
 	for _, roundHistory := range p.ProcessContext.RoundHistory {
-		res = append(res, roundHistory.ToReply())
+		for _, donatedInfo := range roundHistory.DonatedInfoList {
+			info, ok := replyMap[donatedInfo.PlayerId]
+			if !ok {
+				log.Printf("toRoundHistoryReplyList err info is nil %+v %+v", replyMap, p)
+				continue
+			}
+			info.CurrentMoneyList = append(info.CurrentMoneyList, donatedInfo.CurrentMoney)
+			info.DonatedMoneyList = append(info.DonatedMoneyList, donatedInfo.DonatedMoney)
+			info.PunishmentMoneyList = append(info.PunishmentMoneyList, donatedInfo.PunishmentMoney)
+			info.BankruptList = append(info.BankruptList, donatedInfo.Bankrupt)
+		}
 	}
-	return res
+	for _, v := range replyMap {
+
+		res = append(res, v)
+	}
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].PlayerId < res[j].PlayerId
+	})
+	return
 }
 
 func (p *Process) toUserInfoReply(userId int64) *model.PlayerGameInfo {
@@ -77,24 +91,13 @@ func (p *Process) toUserInfoReply(userId int64) *model.PlayerGameInfo {
 			userInfo.PlayerId = playerId
 			userInfo.Username = player.Username
 			userInfo.HeroInfo = player.Hero.ToReply()
+			userInfo.Ranking = player.Ranking
 		}
 	}
 	return userInfo
 }
 
 func (p *Process) toRoundInfoReply(playerId string) *model.RoundInfo {
-	currentRoundInfo := &model.RoundHistory{
-		RoundNo: p.ProcessContext.Round,
-	}
-	var roundInfoList []*model.RoundDonatedInfo
-	for _, donatedInfo := range p.ProcessContext.CurrentRoundInfo.DonatedInfoList {
-		donatedInfoReply := donatedInfo.ToReply()
-		if p.Stage.GetStage() == DonatedStage && donatedInfo.PlayerId != playerId {
-			donatedInfoReply.DonatedMoney = -1
-		}
-		roundInfoList = append(roundInfoList, donatedInfoReply)
-	}
-	currentRoundInfo.RoundDonatedInfoList = roundInfoList
 	return &model.RoundInfo{
 		RoundNo:       p.ProcessContext.Round,
 		PublicOpinion: p.ProcessContext.CurrentRoundInfo.PublicOpinion,
@@ -102,8 +105,24 @@ func (p *Process) toRoundInfoReply(playerId string) *model.RoundInfo {
 			Stage:          p.Stage.GetStage(),
 			StartTime:      p.StageStartTime.UnixNano() / 1000 / 1000,
 			Name:           p.Stage.GetName(),
-			DurationSecond: p.Stage.GetDurationSecond(),
+			DurationSecond: p.Stage.GetDurationSecond(p.ProcessContext),
 		},
-		CurrentRoundInfo: currentRoundInfo,
+		PlayerInfoList: p.toPlayerInfoListReply(playerId),
 	}
+}
+
+func (p *Process) toPlayerInfoListReply(playerId string) []*model.PlayerInfo {
+	var playerInfoList []*model.PlayerInfo
+	for _, donatedInfo := range p.ProcessContext.CurrentRoundInfo.DonatedInfoList {
+		donatedInfoReply := donatedInfo.ToPlayerReply()
+		if p.Stage.GetStage() == DonatedStage && donatedInfo.PlayerId != playerId {
+			donatedInfoReply.DonatedMoney = -1
+		}
+		donatedInfoReply.RankingUp = p.ProcessContext.PlayerMap[donatedInfo.PlayerId].RankingUp
+		playerInfoList = append(playerInfoList, donatedInfoReply)
+	}
+	sort.Slice(playerInfoList, func(i, j int) bool {
+		return playerInfoList[i].PlayerId < playerInfoList[j].PlayerId
+	})
+	return playerInfoList
 }

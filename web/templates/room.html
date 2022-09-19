@@ -9,14 +9,9 @@
     <link rel="stylesheet" href="/game/tfp/static/css/room/tailwind.output.css">
     <script src='/game/tfp/static/js/jquery.min.js'></script>
     <script src='/game/tfp/static/js/jquery.cookie.min.js'></script>
-    <script src="/game/tfp/static/js/common.js" defer=""></script>
-    <script src="/game/tfp/static/js/room/room_html.js" defer=""></script>
-    <script src="/game/tfp/static/js/room/init-alpine.js"></script>
-    <script src="/game/tfp/static/js/room/room.js" defer=""></script>
-    <script src="/game/tfp/static/js/room/alpine.min.js" defer=""></script>
     <link rel="stylesheet" href="/game/tfp/static/css/room/Chart.min.css">
+    <script src="/game/tfp/static/js/room/alpine.min.js" defer=""></script>
     <script src="/game/tfp/static/js/room/Chart.min.js" defer=""></script>
-    <script src="/game/tfp/static/js/room/charts-lines.js" defer=""></script>
 </head>
 <body>
 <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
@@ -24,7 +19,7 @@
         <main class="h-full overflow-y-auto">
             <div class="container px-6 mx-auto grid">
                 <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-                    最后的慈善家！ （v0.0.1-ALPHA）
+                    最后的慈善家！ （v0.1.0-ALPHA 删档内测）
                 </h2>
                 <!-- CTA -->
                 <a id="game_start" class="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple" href="javascript:;">
@@ -38,7 +33,7 @@
                 </a>
                 <div  class="justify-between mb-8">
                     <button id="ready" class="px-10 py-4 font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
-                        准备
+                        准备游戏
                     </button>
                     <button id="ready_cancel" class="px-10 py-4 font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
                         取消准备
@@ -49,10 +44,13 @@
                     <button id="logout" class="px-10 py-4 font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
                         取消登录
                     </button>
+                    <button id="join_new" class="px-10 py-4 font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+                        创建房间
+                    </button>
                     <div class="relative" style="display: inline-block">
-                        <input id="donated_money" onkeyup="value=value.replace(/[^\d]/g,'')" class="block w-full pl-20 mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input" placeholder="捐赠额度">
-                        <button  id="donated_btn" class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray">
-                            捐赠
+                        <input id="room_id" class="block w-full pl-20 mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input" placeholder="房间号">
+                        <button  id="join_room_id" class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray">
+                            加入
                         </button>
                     </div>
                 </div>
@@ -124,6 +122,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="relative" >
+                    <input id="donated_money" onkeyup="value=value.replace(/[^\d]/g,'')" class="block w-full pl-20 mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input" placeholder="捐赠额度">
+                    <button  id="donated_btn" class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray">
+                        捐赠
+                    </button>
+                </div>
 
                 <!-- New Table -->
                 <div class="w-full overflow-hidden rounded-lg shadow-xs">
@@ -178,5 +182,13 @@
         </main>
     </div>
 </div>
+
+<script src="/game/tfp/static/js/common.js" defer=""></script>
+<script src="/game/tfp/static/js/room/room_html.js" defer=""></script>
+<script src="/game/tfp/static/js/room/init-alpine.js"></script>
+<script src="/game/tfp/static/js/room/room.js" defer=""></script>
+<script src="/game/tfp/static/js/room/charts-lines.js" defer=""></script>
+
+
 </body>
 </html>

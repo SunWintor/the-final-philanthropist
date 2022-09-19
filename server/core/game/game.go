@@ -22,9 +22,10 @@ func (g *Game) GameInit(playerMap map[string]*Player) {
 	g.Status = NotStart
 	g.Process = &Process{
 		ProcessContext: &ProcessContext{
-			Round:     0,
-			PlayerMap: playerMap,
-			EndGame:   make(chan struct{}),
+			Round:           0,
+			PlayerMap:       playerMap,
+			EndGame:         make(chan struct{}),
+			RichPlayerCount: int64(len(playerMap)),
 		},
 	}
 	g.Process.ProcessContext.initCurrentRound()
@@ -43,6 +44,9 @@ func (g *Game) start() {
 }
 
 func (g *Game) ToReply(userId int64) *model.GameInfoReply {
+	if g == nil {
+		return nil
+	}
 	var gameInfo *model.GameInfo
 	if g.Process != nil {
 		gameInfo = g.Process.ToGameInfoReply(userId)
