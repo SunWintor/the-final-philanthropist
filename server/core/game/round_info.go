@@ -13,14 +13,15 @@ type RoundInfo struct {
 }
 
 type DonatedInfo struct {
-	PlayerId        string
-	Username        string
-	HeroName        string
-	CurrentMoney    int64
-	MoneyLimit      int64
-	DonatedMoney    int64
-	PunishmentMoney int64
-	Bankrupt        bool
+	PlayerId             string
+	Username             string
+	HeroName             string
+	CurrentMoney         int64
+	MoneyLimit           int64
+	DonatedMoney         int64
+	PunishmentMoney      int64
+	Bankrupt             bool
+	CurrentRoundBankrupt bool
 }
 
 func (r *RoundInfo) defaultDonatedMoney() int64 {

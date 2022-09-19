@@ -14,6 +14,12 @@ type Hero interface {
 
 	IsBankrupt() bool
 	DecMoney(int64)
+	AddMoney(int64)
+
+	OnRoundStart(ctx *SkillContext)
+	OnRoundEnd(ctx *SkillContext)
+	OnDonated(ctx *SkillContext)
+	OnDonatedEnd(ctx *SkillContext)
 }
 
 type heroInfo struct {
@@ -45,7 +51,11 @@ func (f *heroInfo) IsBankrupt() bool {
 }
 
 func (f *heroInfo) DecMoney(money int64) {
-	f.CurrentMoney -= money
+	f.AddMoney(-money)
+}
+
+func (f *heroInfo) AddMoney(money int64) {
+	f.CurrentMoney += money
 }
 
 func (f *heroInfo) GetHeroInfo() heroInfo {

@@ -1,5 +1,7 @@
 package hero
 
+import "log"
+
 //
 //
 //
@@ -90,15 +92,24 @@ type LuckyBoy struct {
 	heroInfo
 }
 
-func (f *LuckyBoy) Init() {
-	f.Id = 3
-	f.Rarity = SSRRarity
-	f.MoneyLimit = 100
-	f.CurrentMoney = f.MoneyLimit
-	f.Name = "天选之人"
-	f.Motto = "如此幸运其实很无聊的"
-	f.SkillInfo = []SkillInfo{{
+func (l *LuckyBoy) Init() {
+	l.Id = 3
+	l.Rarity = SSRRarity
+	l.MoneyLimit = 100
+	l.CurrentMoney = l.MoneyLimit
+	l.Name = "天选之人"
+	l.Motto = "如此幸运其实很无聊的"
+	l.SkillInfo = []SkillInfo{{
 		Name: "空投砸脸",
 		Desc: "每回合开始时获得1枚金币"},
 	}
+}
+
+func (l *LuckyBoy) OnRoundStart(ctx *SkillContext) {
+	if l.IsBankrupt() {
+		return
+	}
+	log.Printf("%+v %+v", l, ctx)
+	l.AddMoney(1)
+	log.Printf("----%+v %+v", l, ctx)
 }

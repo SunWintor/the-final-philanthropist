@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/SunWintor/tfp/server/core/game/hero"
 	"time"
 )
 
@@ -18,4 +19,9 @@ func (g *roundStart) Run(ctx *ProcessContext) <-chan time.Time {
 	ctx.Round++
 	ctx.initCurrentRound()
 	return g.baseStage.Run(ctx)
+}
+
+func (s *roundStart) runHeroSkill(ctx *ProcessContext, h *hero.Hero) {
+	(*h).GetHeroInfo().OnRoundStart(ctx.ToSkillContext())
+	return
 }

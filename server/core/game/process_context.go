@@ -1,5 +1,7 @@
 package game
 
+import "github.com/SunWintor/tfp/server/core/game/hero"
+
 type ProcessContext struct {
 	Round            int64
 	PlayerMap        map[string]*Player // 该map初始化后便不会变动，所以无需加锁便可操作。
@@ -28,12 +30,13 @@ func (p *ProcessContext) initCurrentRound() {
 		DonatedInfoList: make([]*DonatedInfo, 0, len(p.PlayerMap)),
 	}
 	for playerId, player := range p.PlayerMap {
-		hero := player.Hero
+		h := player.Hero
 		var currentMoney, moneyLimit int64
 		var heroName string
+		var isBankrupt bool
 		defaultMoney := p.CurrentRoundInfo.defaultDonatedMoney()
-		if hero != nil {
-			currentMoney, moneyLimit, heroName = hero.GetCurrentMoney(), hero.GetMoneyLimit(), hero.GetName()
+		if h != nil {
+			currentMoney, moneyLimit, heroName, isBankrupt = h.GetCurrentMoney(), h.GetMoneyLimit(), h.GetName(), h.IsBankrupt()
 			if currentMoney < defaultMoney {
 				defaultMoney = currentMoney
 			}
@@ -46,7 +49,7 @@ func (p *ProcessContext) initCurrentRound() {
 			MoneyLimit:      moneyLimit,
 			DonatedMoney:    defaultMoney, // 当玩家超时或者掉线的时候，捐赠额度为舆论惩罚+2，对局势影响会较小
 			PunishmentMoney: 0,            // 显式声明，表示全部字段都处理过了
-			Bankrupt:        false,        // 同上
+			Bankrupt:        isBankrupt,   // 同上
 		})
 	}
 }
@@ -83,6 +86,9 @@ func (p *ProcessContext) decPlayerMoney(money int64, donatedInfo *DonatedInfo) {
 	player, _ := p.PlayerMap[donatedInfo.PlayerId]
 	player.Hero.DecMoney(money)
 	if player.Hero.IsBankrupt() {
+		if !donatedInfo.Bankrupt {
+			donatedInfo.CurrentRoundBankrupt = true
+		}
 		donatedInfo.Bankrupt = true
 	}
 	p.syncHeroMoneyToCurrentRound()
@@ -104,5 +110,17 @@ func (p *ProcessContext) judgementGameEnd() {
 	if lifePlayerCount <= 1 {
 		p.roundToHistory()
 		close(p.EndGame)
+	}
+}
+
+func (p *ProcessContext) ToSkillContext() *hero.SkillContext {
+	currentRoundBankruptCount := int64(0)
+	for _, v := range p.CurrentRoundInfo.DonatedInfoList {
+		if v.CurrentRoundBankrupt {
+			currentRoundBankruptCount++
+		}
+	}
+	return &hero.SkillContext{
+		BankruptcyCount: currentRoundBankruptCount,
 	}
 }
