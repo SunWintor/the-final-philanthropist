@@ -132,7 +132,7 @@ function syncGameInfo(gameInfo) {
     durationUnix = Number(gameInfo["game_info"]["round_info"]["stage"]["duration"]) * 1000
     roundInfo["stage_end_time"] = startTimeUnix + durationUnix
 
-    playerList = []
+    playerList = [] // mark
     for (let roomUser of gameInfo["game_info"]["round_info"]["player_info_list"]) {
         playerList.push({
             player_id: roomUser.player_id,

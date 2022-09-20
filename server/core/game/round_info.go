@@ -23,6 +23,7 @@ type DonatedInfo struct {
 	DonatedMoney    int64
 	PunishmentMoney int64
 	Bankrupt        bool
+	CurrentRoundBankrupt bool
 }
 
 func (d *DonatedInfo) ToPlayerReply() *model.PlayerInfo {

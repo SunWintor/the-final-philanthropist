@@ -12,6 +12,7 @@ type Stage interface {
 	GetStage() int64
 	GetName() string
 	GetDurationSecond(ctx *ProcessContext) int64
+	runHeroSkill(ctx *ProcessContext)
 }
 
 type baseStage struct {
@@ -39,6 +40,10 @@ func (s *baseStage) Run(ctx *ProcessContext) <-chan time.Time {
 
 func (s *baseStage) Next(ctx *ProcessContext) Stage {
 	return s.next
+}
+
+func (s *baseStage) runHeroSkill(ctx *ProcessContext) {
+	return
 }
 
 func (s *baseStage) setNext(stage Stage) {

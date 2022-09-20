@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"github.com/SunWintor/tfp/server/core/game/hero"
 	"sort"
 	"strconv"
 )
@@ -79,6 +80,9 @@ func (p *ProcessContext) decPlayerMoney(money int64, donatedInfo *DonatedInfo) {
 	player, _ := p.PlayerMap[donatedInfo.PlayerId]
 	player.Hero.DecMoney(money)
 	if player.Hero.IsBankrupt() {
+		if !donatedInfo.Bankrupt {
+			donatedInfo.CurrentRoundBankrupt = true
+		}
 		donatedInfo.Bankrupt = true
 	}
 	p.syncHeroMoneyToCurrentRound()
@@ -138,4 +142,16 @@ func (p *ProcessContext) GetRankingUp(userId int64) float64 {
 		}
 	}
 	return 0
+}
+
+func (p *ProcessContext) ToSkillContext() *hero.SkillContext {
+	currentRoundBankruptCount := int64(0)
+	for _, v := range p.CurrentRoundInfo.DonatedInfoList {
+		if v.CurrentRoundBankrupt {
+			currentRoundBankruptCount++
+		}
+	}
+	return &hero.SkillContext{
+		BankruptcyCount: currentRoundBankruptCount,
+	}
 }
