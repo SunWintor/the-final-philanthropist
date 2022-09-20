@@ -1,7 +1,5 @@
 package hero
 
-import "log"
-
 //
 //
 //
@@ -109,7 +107,5 @@ func (l *LuckyBoy) OnRoundStart(ctx *SkillContext) {
 	if l.IsBankrupt() {
 		return
 	}
-	log.Printf("%+v %+v", l, ctx)
 	l.AddMoney(1)
-	log.Printf("----%+v %+v", l, ctx)
 }

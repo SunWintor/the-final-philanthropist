@@ -1,7 +1,6 @@
 package game
 
 import (
-	"github.com/SunWintor/tfp/server/core/game/hero"
 	"time"
 )
 
@@ -13,8 +12,7 @@ type Stage interface {
 	GetStage() int64
 	GetName() string
 	GetDurationSecond(ctx *ProcessContext) int64
-	RunAllHeroSkill(ctx *ProcessContext)
-	runHeroSkill(ctx *ProcessContext, h *hero.Hero)
+	runHeroSkill(ctx *ProcessContext)
 }
 
 type baseStage struct {
@@ -44,14 +42,7 @@ func (s *baseStage) Next(ctx *ProcessContext) Stage {
 	return s.next
 }
 
-func (s *baseStage) RunAllHeroSkill(ctx *ProcessContext) {
-	for _, v := range ctx.PlayerMap {
-		s.runHeroSkill(ctx, &v.Hero)
-	}
-	return
-}
-
-func (s *baseStage) runHeroSkill(ctx *ProcessContext, h *hero.Hero) {
+func (s *baseStage) runHeroSkill(ctx *ProcessContext) {
 	return
 }
 
