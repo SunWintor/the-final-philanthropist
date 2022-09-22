@@ -17,7 +17,7 @@ func (g *gameStart) templateInit() {
 
 func (g *gameStart) Run(ctx *ProcessContext) <-chan time.Time {
 	for _, player := range ctx.PlayerMap {
-		h := &hero.LuckyBoy{}
+		h := &hero.DeathPupil{}
 		h.Init()
 		player.Hero = h
 	}

@@ -114,6 +114,15 @@ func (f *DeathPupil) Init() {
 	f.Motto = "凶手有很多，死神只有一个"
 	f.SkillInfo = []SkillInfo{{
 		Name: "死神",
-		Desc: "上回合若有玩家被淘汰\n获得3金币"},
+		Desc: "上回合每有一名玩家被淘汰\n获得3金币"},
+	}
+}
+
+func (l *DeathPupil) OnRoundStart(ctx *SkillContext) {
+	if l.IsBankrupt() {
+		return
+	}
+	for i := int64(0); i < ctx.BankruptcyCount; i++ {
+		l.AddMoney(3)
 	}
 }
