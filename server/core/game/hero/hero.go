@@ -8,6 +8,7 @@ type Hero interface {
 	GetHeroInfo() heroInfo
 	GetMoneyLimit() int64
 	GetCurrentMoney() int64
+	GetSkillMoney() int64
 	GetName() string
 
 	ToReply() *model.Hero
@@ -30,6 +31,7 @@ type heroInfo struct {
 	Name         string
 	Motto        string
 	SkillInfo    []SkillInfo
+	SkillMoney   int64
 }
 
 type SkillInfo struct {
@@ -68,6 +70,10 @@ func (f *heroInfo) GetMoneyLimit() int64 {
 
 func (f *heroInfo) GetCurrentMoney() int64 {
 	return f.CurrentMoney
+}
+
+func (f *heroInfo) GetSkillMoney() int64 {
+	return f.SkillMoney
 }
 
 func (f *heroInfo) GetName() string {

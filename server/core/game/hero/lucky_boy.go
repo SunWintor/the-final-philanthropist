@@ -103,9 +103,15 @@ func (l *LuckyBoy) Init() {
 	}
 }
 
+const (
+	luckyBoySkillMoney = 3
+)
+
 func (l *LuckyBoy) OnRoundStart(ctx *SkillContext) {
+	l.SkillMoney = 0
 	if l.IsBankrupt() {
 		return
 	}
-	l.AddMoney(1)
+	l.AddMoney(luckyBoySkillMoney)
+	l.SkillMoney = luckyBoySkillMoney
 }

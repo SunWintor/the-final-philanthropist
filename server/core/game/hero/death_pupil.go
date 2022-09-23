@@ -118,11 +118,17 @@ func (f *DeathPupil) Init() {
 	}
 }
 
+const (
+	deathPupilSkillMoney = 3
+)
+
 func (l *DeathPupil) OnRoundStart(ctx *SkillContext) {
+	l.SkillMoney = 0
 	if l.IsBankrupt() {
 		return
 	}
 	for i := int64(0); i < ctx.BankruptcyCount; i++ {
-		l.AddMoney(3)
+		l.AddMoney(deathPupilSkillMoney)
+		l.SkillMoney += deathPupilSkillMoney
 	}
 }
