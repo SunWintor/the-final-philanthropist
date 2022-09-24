@@ -127,4 +127,26 @@ func (f *Mathematician) Init() {
 		Name: "基本素质",
 		Desc: "回合结束时剩余金币若为素数\n获得2枚金币"},
 	}
+	f.SkillMoney = 0
+}
+
+const (
+	mathematicianSkillMoney = 2
+)
+
+var primeNum = []int64{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113}
+
+func (l *Mathematician) OnRoundStart(ctx *SkillContext) {
+	l.SkillMoney = 0
+}
+
+func (l *Mathematician) OnRoundEnd(ctx *SkillContext) {
+	// 算哈希比这个循环慢多了
+	for _, v := range primeNum {
+		if l.CurrentMoney == v {
+			l.AddMoney(mathematicianSkillMoney)
+			l.SkillMoney = mathematicianSkillMoney
+			return
+		}
+	}
 }
