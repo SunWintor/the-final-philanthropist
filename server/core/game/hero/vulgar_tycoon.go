@@ -148,3 +148,16 @@ func (f *VulgarTycoon) Init() {
 		Desc: "捐赠金币数量至少为3"},
 	}
 }
+
+func (f *VulgarTycoon) OnDonated(donatedMoney int64) int64 {
+	if f.IsBankrupt() {
+		return donatedMoney
+	}
+	if donatedMoney <= 3 {
+		donatedMoney = 3
+	}
+	if donatedMoney > f.CurrentMoney {
+		donatedMoney = f.CurrentMoney
+	}
+	return donatedMoney
+}
