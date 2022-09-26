@@ -91,3 +91,13 @@ func (f *Miser) Init() {
 		Desc: "捐赠金币数量最多为10"},
 	}
 }
+
+func (f *Miser) OnDonated(donatedMoney int64) int64 {
+	if f.IsBankrupt() {
+		return donatedMoney
+	}
+	if donatedMoney >= 10 {
+		donatedMoney = 10
+	}
+	return donatedMoney
+}
