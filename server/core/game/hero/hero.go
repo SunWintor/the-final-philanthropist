@@ -20,6 +20,7 @@ type Hero interface {
 	OnRoundStart(ctx *SkillContext)
 	OnRoundEnd(ctx *SkillContext)
 	OnDonated(donatedMoney int64) int64
+	OnPublicOpinion(punishmentMoney int64) int64
 	OnDonatedEnd(ctx *SkillContext)
 }
 

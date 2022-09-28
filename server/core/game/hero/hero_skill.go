@@ -15,6 +15,9 @@ func (f heroInfo) OnRoundEnd(ctx *SkillContext) {
 func (f heroInfo) OnDonated(donatedMoney int64) int64 {
 	return donatedMoney
 }
+func (f heroInfo) OnPublicOpinion(punishmentMoney int64) int64 {
+	return punishmentMoney
+}
 func (f heroInfo) OnDonatedEnd(ctx *SkillContext) {
 	return
 }

@@ -64,3 +64,10 @@ func (f *Professor) Init() {
 		Desc: "受到的舆论惩罚+5"},
 	}
 }
+
+func (f Professor) OnPublicOpinion(punishmentMoney int64) int64 {
+	if punishmentMoney > 0 {
+		return punishmentMoney + 5
+	}
+	return punishmentMoney
+}

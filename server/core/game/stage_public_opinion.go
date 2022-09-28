@@ -17,6 +17,9 @@ func (g *publicOpinion) templateInit() {
 func (g *publicOpinion) Run(ctx *ProcessContext) <-chan time.Time {
 	currentRound := ctx.CurrentRoundInfo
 	currentRound.reckonPunishment()
+	for _, v := range currentRound.DonatedInfoList {
+		v.PunishmentMoney = ctx.PlayerMap[v.PlayerId].Hero.OnPublicOpinion(v.PunishmentMoney)
+	}
 	ctx.decPlayerPunishmentMoney()
 	ctx.judgementGameEnd()
 	return g.baseStage.Run(ctx)
